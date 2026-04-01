@@ -257,7 +257,7 @@ st.markdown("""
 }
 .stTabs [aria-selected="true"] {
     color: #e2e5ee !important;
-    border-bottom: 2px solid #3a86ff !important;
+    border-bottom: 2px solid rgba(58,134,255,0.1) !important;
 }
 .stTabs [data-baseweb="tab-panel"] { padding: 16px 0 0 0 !important; }
 
