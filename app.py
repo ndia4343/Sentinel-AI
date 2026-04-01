@@ -7,6 +7,14 @@ import time
 import math
 from datetime import datetime
 
+# ───────────────────────────────────────────────
+# Helper function: convert hex color to rgba
+# ───────────────────────────────────────────────
+def hex_to_rgba(hex_color, alpha=0.1):
+    hex_color = hex_color.lstrip("#")
+    r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+    return f"rgba({r}, {g}, {b}, {alpha})"
+    
 # ═══════════════════════════════════════════════
 # 1. PAGE CONFIG
 # ═══════════════════════════════════════════════
@@ -30,6 +38,66 @@ def load_assets():
 
 model, scaler = load_assets()
 
+# ───────────────────────────────────────────────
+for key, default in {
+    "hist_labels": [f"T-{i}" for i in range(30)],
+    "hist_rpm": [0]*30,
+    "hist_torq": [0]*30,
+    "hist_temp": [0]*30,
+    "hist_risk": [0]*30,
+}.items():
+    if key not in st.session_state:
+        st.session_state[key] = default
+# ───────────────────────────────────────────────
+# TAB 3 · CHARTS
+# ───────────────────────────────────────────────
+with st.expander("Sensor Charts (Last 30 readings)"):
+    labels = st.session_state.hist_labels
+
+    if len(labels) < 2:
+        st.info("Waiting for data — adjust sliders or enable Live Streaming to populate charts.")
+    else:
+        PBGC  = "#0b0d11"
+        GRIDC = "#1e2230"
+        FONTC = "#5a6070"
+        FONTF = "Courier New"
+
+        def mk_fig(title, y_data, color):
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=labels,
+                y=y_data,
+                mode="lines",
+                line=dict(color=color, width=1.5),
+                fill="tozeroy",
+                fillcolor=hex_to_rgba(color, alpha=0.1),  # ✅ Use helper
+            ))
+            fig.update_layout(
+                title=dict(
+                    text=title,
+                    font=dict(color="#e2e5ee", size=11, family=FONTF),
+                    x=0.01),
+                paper_bgcolor=PBGC,
+                plot_bgcolor=PBGC,
+                margin=dict(l=40, r=10, t=36, b=30),
+                height=180,
+                xaxis=dict(showticklabels=False, gridcolor=GRIDC, zeroline=False, showline=False),
+                yaxis=dict(gridcolor=GRIDC, tickfont=dict(color=FONTC, size=9, family=FONTF), zeroline=False),
+                showlegend=False,
+            )
+            return fig
+
+        r1c1, r1c2 = st.columns(2)
+        with r1c1:
+            st.plotly_chart(mk_fig("ENGINE RPM", st.session_state.hist_rpm, "#3a86ff"), use_container_width=True)
+        with r1c2:
+            st.plotly_chart(mk_fig("TORQUE (Nm)", st.session_state.hist_torq, "#d4a843"), use_container_width=True)
+
+        r2c1, r2c2 = st.columns(2)
+        with r2c1:
+            st.plotly_chart(mk_fig("PROCESS TEMP (K)", st.session_state.hist_temp, "#f09070"), use_container_width=True)
+        with r2c2:
+            st.plotly_chart(mk_fig("FAILURE PROBABILITY (%)", st.session_state.hist_risk, "#d84040"), use_container_width=True)
 # ═══════════════════════════════════════════════
 # 3. SESSION STATE
 # ═══════════════════════════════════════════════
@@ -847,7 +915,7 @@ with tab_charts:
                     mode="lines",
                     line=dict(color=color, width=1.5),
                     fill="tozeroy",
-                    fillcolor=color + "18",
+                    fillcolor=hex_to_rgba(color, alpha=0.1),
                 ))
                 fig.update_layout(
                     title=dict(
@@ -985,13 +1053,13 @@ with tab_about:
               border-radius:6px;padding:14px">
     <div style="font-size:9px;color:#5a6070;letter-spacing:2px;
                 margin-bottom:8px">5 INPUT FEATURES</div>
-    <div style="font-size:11px;color:#e2e5ee;line-height:1.9">
-      Air Temperature [K]<br>
-      Process Temperature [K]<br>
-      Rotational Speed [RPM]<br>
-      Torque [Nm]<br>
-      Tool Wear [min]
-    </div>
+<div style="font-size:11px;color:#e2e5ee;line-height:1.9">
+  Air Temperature [K]: {air_temp}<br>
+  Process Temperature [K]: {process_temp}<br>
+  Rotational Speed [RPM]: {rot_speed}<br>
+  Torque [Nm]: {torque}<br>
+  Tool Wear [min]: {tool_wear}
+</div>   
   </div>
 
   <div style="background:#151820;border:1px solid #1e2230;
