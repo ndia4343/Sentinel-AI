@@ -613,8 +613,8 @@ else:
         torque_nm  = st.slider("Torque (Nm)",          5.0,   120.0, 40.0,  0.5)
         tool_wear  = st.slider("Tool Wear (min)",      0,     250,   50,    1)
 
-    st.markdown("---")
-    st.markdown('<p class="sec-label">AUTOMATION</p>', unsafe_allow_html=True)
+st.markdown("---")
+st.markdown('<p class="sec-label">AUTOMATION</p>', unsafe_allow_html=True)
 
     ov_lbl = "⚙ OVERRIDE ACTIVE" if st.session_state.override else "⚙ MANUAL OVERRIDE"
     if st.button(ov_lbl, key="btn_ov",
@@ -632,7 +632,7 @@ else:
             add_log("CRIT", "EMERGENCY STOP triggered. System halted.", "#d84040")
             add_alert("crit", "Emergency Stop Engaged",
                       "All actuators halted · Unit-07")
-        else:
+    else:
             st.session_state.estop = False
             add_log("INFO", "System reset. Resuming normal operations.", "#3db85a")
             add_alert("ok",  "System Reset",
