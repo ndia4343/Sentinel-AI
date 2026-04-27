@@ -606,7 +606,7 @@ if live_mode and not st.session_state.estop:
             trow("Torque (Nm)",      f"{torque_nm:.1f}") +
             trow("Tool Wear (min)",  str(tool_wear)),
             unsafe_allow_html=True)
-    else:
+else:
         air_temp   = st.slider("Air Temperature (K)",  285.0, 315.0, 300.0, 0.5)
         proc_temp  = st.slider("Process Temp (K)",     295.0, 360.0, 310.0, 0.5)
         engine_rpm = st.slider("Engine RPM",           500,   4000,  1500,  10)
