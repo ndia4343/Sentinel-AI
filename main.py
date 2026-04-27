@@ -563,7 +563,7 @@ st.markdown('<hr style="margin: 20px 0; border-color: #1e2230;">', unsafe_allow_
  
     # st.checkbox instead of st.toggle — works on ALL Streamlit versions
     # and has NO JS module import issues on tunnels
-    live_mode = st.checkbox(
+live_mode = st.checkbox(
         "📡  LIVE STREAMING",
         value=st.session_state.live_mode,
         key="cb_live",
