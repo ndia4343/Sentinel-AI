@@ -617,7 +617,7 @@ st.markdown("---")
 st.markdown('<p class="sec-label">AUTOMATION</p>', unsafe_allow_html=True)
 
 ov_lbl = "⚙ OVERRIDE ACTIVE" if st.session_state.override else "⚙ MANUAL OVERRIDE"
-    if st.button(ov_lbl, key="btn_ov",
+if st.button(ov_lbl, key="btn_ov",
                  disabled=st.session_state.estop):
         st.session_state.override = not st.session_state.override
         if st.session_state.override:
