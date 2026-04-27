@@ -518,6 +518,13 @@ with st.sidebar:
 
     st.markdown('<p class="sec-label">OPERATIONAL MODE</p>', unsafe_allow_html=True)
 
+
+# Check if level exists, if not, give it a starting value so the grid doesn't crash
+if 'level' not in locals(): level = "nominal"
+# ───────────────────────────────────────────────
+# NEW: FLEET STATUS GRID (30 Machines)
+# ───────────────────────────────────────────────
+
 # ───────────────────────────────────────────────
 # NEW: FLEET STATUS GRID (30 Machines)
 # ───────────────────────────────────────────────
