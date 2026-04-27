@@ -523,41 +523,45 @@ with st.sidebar:
 # ───────────────────────────────────────────────
 st.markdown('<p class="sec-label">INDUSTRIAL FLEET MONITORING (30 NODES)</p>', unsafe_allow_html=True)
 
-# Create the 30 machines grid layout
-# We use a container with flex-wrap to make it look like a professional grid
+# 1. Initialize the HTML container
 fleet_html = '<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">'
 
+# 2. Loop through all 30 machines
 for i in range(1, 31):
     m_id = f"{i:02d}"
-    # Machine 07 is our "Live" machine from your sidebar logic
+    
+    # Machine 07 is our "Live" machine linked to sensor data
     if i == 7:
-        # Match your 'level' variable colors
-        status_color = dot_col 
-        status_bg = f"{dot_col}22"
+        # Use the 'level' variable you calculated in Section 8
+        status_color = "#2ecc71" if level == "nominal" else "#d4a843" if level == "warn" else "#d84040"
+        status_bg = f"{status_color}22" 
         status_label = "ACTIVE"
-        border = f"1px solid {dot_col}"
-        # Add a pulse class for the active machine
+        border = f"1px solid {status_color}"
+        
+        # This adds the glowing pulse effect to Node-07
         pulse_class = "pulse-green" if level == "nominal" else "pulse-amber" if level == "warn" else "pulse-red"
     else:
-        # All other machines are "Simulated Healthy"
+        # All other machines stay in a healthy simulated state
         status_color = "#3db85a"
         status_bg = "#0d1a12"
         status_label = "OK"
         border = "1px solid #1a3d22"
         pulse_class = ""
 
+    # 3. Append each machine's HTML card
     fleet_html += f"""
-    <div style="flex: 1 1 60px; min-width: 65px; background: {status_bg}; border: {border}; 
+    <div class="{pulse_class}" style="flex: 1 1 60px; min-width: 65px; background: {status_bg}; border: {border}; 
                 border-radius: 4px; padding: 6px 2px; text-align: center; font-family: 'Courier New', monospace;
                 box-shadow: { '0 0 8px ' + status_color if i == 7 else 'none' };">
         <div style="font-size: 8px; color: #5a6070; margin-bottom: 2px;">NODE-{m_id}</div>
         <div style="font-size: 9px; color: {status_color}; font-weight: 700;">{status_label}</div>
     </div>
     """
-fleet_html += '</div>'
 
+fleet_html += '</div>'
 st.markdown(fleet_html, unsafe_allow_html=True)
 
+# ───────────────────────────────────────────────
 st.markdown('<hr style="margin: 20px 0; border-color: #1e2230;">', unsafe_allow_html=True)
 
  
