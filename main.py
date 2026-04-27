@@ -568,14 +568,14 @@ live_mode = st.checkbox(
         value=st.session_state.live_mode,
         key="cb_live",
     )
-    st.session_state.live_mode = live_mode
+st.session_state.live_mode = live_mode
     if st.session_state.estop:
         live_mode = False
 
-    st.markdown("---")
-    st.markdown('<p class="sec-label">SENSOR TELEMETRY</p>', unsafe_allow_html=True)
+st.markdown("---")
+st.markdown('<p class="sec-label">SENSOR TELEMETRY</p>', unsafe_allow_html=True)
 
-    if live_mode and not st.session_state.estop:
+if live_mode and not st.session_state.estop:
         t          = time.time()
         air_temp   = round(300.0 + 5.0  * np.sin(t / 10),  1)
         proc_temp  = round(air_temp + 10 + 2.0 * np.cos(t / 5), 1)
