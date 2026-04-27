@@ -569,7 +569,7 @@ live_mode = st.checkbox(
         key="cb_live",
     )
 st.session_state.live_mode = live_mode
-    if st.session_state.estop:
+if st.session_state.estop:
         live_mode = False
 
 st.markdown("---")
