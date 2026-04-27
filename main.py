@@ -626,7 +626,7 @@ else:
             add_log("INFO", "Manual override released. Automation resumed.", "#5a9fd4")
 
 es_lbl = "🔴 E-STOP ENGAGED" if st.session_state.estop else "⬛ EMERGENCY STOP"
-    if st.button(es_lbl, key="btn_es"):
+if st.button(es_lbl, key="btn_es"):
         if not st.session_state.estop:
             st.session_state.estop = True
             add_log("CRIT", "EMERGENCY STOP triggered. System halted.", "#d84040")
