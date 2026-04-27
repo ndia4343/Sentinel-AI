@@ -616,13 +616,13 @@ else:
 st.markdown("---")
 st.markdown('<p class="sec-label">AUTOMATION</p>', unsafe_allow_html=True)
 
-    ov_lbl = "⚙ OVERRIDE ACTIVE" if st.session_state.override else "⚙ MANUAL OVERRIDE"
+ov_lbl = "⚙ OVERRIDE ACTIVE" if st.session_state.override else "⚙ MANUAL OVERRIDE"
     if st.button(ov_lbl, key="btn_ov",
                  disabled=st.session_state.estop):
         st.session_state.override = not st.session_state.override
         if st.session_state.override:
             add_log("WARN", "Manual override engaged. Automation paused.", "#d4a843")
-        else:
+    else:
             add_log("INFO", "Manual override released. Automation resumed.", "#5a9fd4")
 
     es_lbl = "🔴 E-STOP ENGAGED" if st.session_state.estop else "⬛ EMERGENCY STOP"
