@@ -518,6 +518,49 @@ with st.sidebar:
 
     st.markdown('<p class="sec-label">OPERATIONAL MODE</p>', unsafe_allow_html=True)
 
+# ───────────────────────────────────────────────
+# NEW: FLEET STATUS GRID (30 Machines)
+# ───────────────────────────────────────────────
+st.markdown('<p class="sec-label">INDUSTRIAL FLEET MONITORING (30 NODES)</p>', unsafe_allow_html=True)
+
+# Create the 30 machines grid layout
+# We use a container with flex-wrap to make it look like a professional grid
+fleet_html = '<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">'
+
+for i in range(1, 31):
+    m_id = f"{i:02d}"
+    # Machine 07 is our "Live" machine from your sidebar logic
+    if i == 7:
+        # Match your 'level' variable colors
+        status_color = dot_col 
+        status_bg = f"{dot_col}22"
+        status_label = "ACTIVE"
+        border = f"1px solid {dot_col}"
+        # Add a pulse class for the active machine
+        pulse_class = "pulse-green" if level == "nominal" else "pulse-amber" if level == "warn" else "pulse-red"
+    else:
+        # All other machines are "Simulated Healthy"
+        status_color = "#3db85a"
+        status_bg = "#0d1a12"
+        status_label = "OK"
+        border = "1px solid #1a3d22"
+        pulse_class = ""
+
+    fleet_html += f"""
+    <div style="flex: 1 1 60px; min-width: 65px; background: {status_bg}; border: {border}; 
+                border-radius: 4px; padding: 6px 2px; text-align: center; font-family: 'Courier New', monospace;
+                box-shadow: { '0 0 8px ' + status_color if i == 7 else 'none' };">
+        <div style="font-size: 8px; color: #5a6070; margin-bottom: 2px;">NODE-{m_id}</div>
+        <div style="font-size: 9px; color: {status_color}; font-weight: 700;">{status_label}</div>
+    </div>
+    """
+fleet_html += '</div>'
+
+st.markdown(fleet_html, unsafe_allow_html=True)
+
+st.markdown('<hr style="margin: 20px 0; border-color: #1e2230;">', unsafe_allow_html=True)
+
+ 
     # st.checkbox instead of st.toggle — works on ALL Streamlit versions
     # and has NO JS module import issues on tunnels
     live_mode = st.checkbox(
