@@ -622,7 +622,7 @@ if st.button(ov_lbl, key="btn_ov",
         st.session_state.override = not st.session_state.override
         if st.session_state.override:
             add_log("WARN", "Manual override engaged. Automation paused.", "#d4a843")
-    else:
+else:
             add_log("INFO", "Manual override released. Automation resumed.", "#5a9fd4")
 
     es_lbl = "🔴 E-STOP ENGAGED" if st.session_state.estop else "⬛ EMERGENCY STOP"
@@ -632,19 +632,19 @@ if st.button(ov_lbl, key="btn_ov",
             add_log("CRIT", "EMERGENCY STOP triggered. System halted.", "#d84040")
             add_alert("crit", "Emergency Stop Engaged",
                       "All actuators halted · Unit-07")
-    else:
+else:
             st.session_state.estop = False
             add_log("INFO", "System reset. Resuming normal operations.", "#3db85a")
             add_alert("ok",  "System Reset",
                       "Normal operations resumed · Unit-07")
 
-    st.markdown("---")
-    st.markdown(
+st.markdown("---")
+st.markdown(
         f'<p style="font-family:Courier New;font-size:9px;color:#3a4050;'
         f'letter-spacing:1px">NODE: UNIT-07 &nbsp;|&nbsp; {now_ts()}</p>',
         unsafe_allow_html=True)
 
-    if st.button("⬡ LOGOUT", key="btn_logout"):
+if st.button("⬡ LOGOUT", key="btn_logout"):
         st.session_state.logged_in  = False
         st.session_state.live_mode  = False
         st.rerun()
