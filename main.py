@@ -525,47 +525,82 @@ if 'level' not in locals():
 # ───────────────────────────────────────────────
 # 8. FLEET STATUS GRID (25 Machines)
 # ───────────────────────────────────────────────
-real_node_id = ml_output  # <-- THIS is the key change
+import streamlit as st
+import time
+import numpy as np
 
-fleet_html = '<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">'
+st.set_page_config(page_title="Fleet Monitor", layout="wide")
 
-for i in range(1, 31):
-    m_id = f"{i:02d}"
+# ─────────────────────────────
+# SIMULATED ML OUTPUT
+# ─────────────────────────────
+ml_output = 7   # active node (1–25)
+active_nodes = [ml_output]
 
-    if i == real_node_id:
-        status_color = "#2ecc71"
-        status_bg = f"{status_color}22"
-        status_label = "ACTIVE (ML)"
-        border = f"1px solid {status_color}"
-        shadow = f"0 0 8px {status_color}"
+# ─────────────────────────────
+# OPTIONAL: fake dynamic change
+# ─────────────────────────────
+if "tick" not in st.session_state:
+    st.session_state.tick = 0
+
+st.session_state.tick += 1
+
+# change active node every 5 seconds (simulation only)
+if st.session_state.tick % 5 == 0:
+    ml_output = np.random.randint(1, 26)
+    active_nodes = [ml_output]
+
+# ─────────────────────────────
+# FLEET GRID
+# ─────────────────────────────
+fleet_html = """
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
+"""
+
+for i in range(1, 26):
+    node_id = f"{i:02d}"
+
+    if i in active_nodes:
+        color = "#2ecc71"
+        bg = "#2ecc7122"
+        label = "ACTIVE (ML)"
+        border = "1px solid #2ecc71"
+        shadow = "0 0 10px #2ecc71"
     else:
-        status_color = "#3db85a"
-        status_bg = "#0d1a12"
-        status_label = "IDLE"
+        color = "#3db85a"
+        bg = "#0d1a12"
+        label = "IDLE"
         border = "1px solid #1a3d22"
         shadow = "none"
 
     fleet_html += f"""
-    <div style="flex: 1 1 60px; min-width: 65px; background: {status_bg};
-                border: {border}; border-radius: 4px; padding: 6px 2px;
-                text-align: center; font-family: 'Courier New', monospace;
-                box-shadow: {shadow};">
-
-        <div style="font-size: 8px; color: #5a6070; margin-bottom: 2px;">
-            NODE-{m_id}
+    <div style="
+        flex:1 1 60px;
+        min-width:65px;
+        background:{bg};
+        border:{border};
+        border-radius:6px;
+        padding:6px;
+        text-align:center;
+        font-family:Courier New;
+        box-shadow:{shadow};
+    ">
+        <div style="font-size:8px;color:#5a6070;">NODE-{node_id}</div>
+        <div style="font-size:10px;color:{color};font-weight:700;">
+            {label}
         </div>
-
-        <div style="font-size: 9px; color: {status_color}; font-weight: 700;">
-            {status_label}
-        </div>
-
     </div>
     """
 
-fleet_html += '</div>'
+fleet_html += "</div>"
 
-st.sidebar.markdown(fleet_html, unsafe_allow_html=True)
+st.markdown(fleet_html, unsafe_allow_html=True)
 
+# auto refresh (SAFE version)
+time.sleep(1)
+st.rerun()
+
+       
    # ───────────────────────────────────────────────
 st.markdown('<hr style="margin: 20px 0; border-color: #1e2230;">', unsafe_allow_html=True)
 
