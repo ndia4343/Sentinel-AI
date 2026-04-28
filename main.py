@@ -525,80 +525,42 @@ if 'level' not in locals():
 # ───────────────────────────────────────────────
 # 8. FLEET STATUS GRID (25 Machines)
 # ───────────────────────────────────────────────
-import streamlit as st
-import time
-import numpy as np
+<div id="machine-grid" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+<script>
+const totalMachines = 25;
 
-st.set_page_config(page_title="Fleet Monitor", layout="wide")
+// your REAL ML result (from backend later)
+const mlActiveNode = 25; // keep same UI behavior you already had
 
-# ─────────────────────────────
-# SIMULATED ML OUTPUT
-# ─────────────────────────────
-ml_output = 7   # active node (1–25)
-active_nodes = [ml_output]
+const container = document.getElementById("machine-grid");
 
-# ─────────────────────────────
-# OPTIONAL: fake dynamic change
-# ─────────────────────────────
-if "tick" not in st.session_state:
-    st.session_state.tick = 0
+for (let i = 1; i <= totalMachines; i++) {
+    const isActive = i === mlActiveNode;
 
-st.session_state.tick += 1
+    const card = document.createElement("div");
 
-# change active node every 5 seconds (simulation only)
-if st.session_state.tick % 5 == 0:
-    ml_output = np.random.randint(1, 26)
-    active_nodes = [ml_output]
-
-# ─────────────────────────────
-# FLEET GRID
-# ─────────────────────────────
-fleet_html = """
-<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
-"""
-
-for i in range(1, 26):
-    node_id = f"{i:02d}"
-
-    if i in active_nodes:
-        color = "#2ecc71"
-        bg = "#2ecc7122"
-        label = "ACTIVE (ML)"
-        border = "1px solid #2ecc71"
-        shadow = "0 0 10px #2ecc71"
-    else:
-        color = "#3db85a"
-        bg = "#0d1a12"
-        label = "IDLE"
-        border = "1px solid #1a3d22"
-        shadow = "none"
-
-    fleet_html += f"""
-    <div style="
+    card.style = `
         flex:1 1 60px;
         min-width:65px;
-        background:{bg};
-        border:{border};
+        background:${isActive ? '#2ecc7122' : '#0d1a12'};
+        border:1px solid ${isActive ? '#2ecc71' : '#1a3d22'};
         border-radius:6px;
         padding:6px;
         text-align:center;
         font-family:Courier New;
-        box-shadow:{shadow};
-    ">
-        <div style="font-size:8px;color:#5a6070;">NODE-{node_id}</div>
-        <div style="font-size:10px;color:{color};font-weight:700;">
-            {label}
+        ${isActive ? 'box-shadow:0 0 10px #2ecc71;' : ''}
+    `;
+
+    card.innerHTML = `
+        <div style="font-size:8px;color:#5a6070;">NODE-${String(i).padStart(2,'0')}</div>
+        <div style="font-size:10px;color:${isActive ? '#2ecc71' : '#3db85a'};font-weight:700;">
+            ${isActive ? 'ACTIVE (ML)' : 'IDLE'}
         </div>
-    </div>
-    """
+    `;
 
-fleet_html += "</div>"
-
-st.markdown(fleet_html, unsafe_allow_html=True)
-
-# auto refresh (SAFE version)
-time.sleep(1)
-st.rerun()
+    container.appendChild(card);
+}
+</script>  
 
        
    # ───────────────────────────────────────────────
