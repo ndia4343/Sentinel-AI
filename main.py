@@ -526,59 +526,6 @@ if 'level' not in locals():
 # 8. FLEET STATUS GRID (25 Machines - STREAMLIT SAFE)
 # ═══════════════════════════════════════════════
 
-st.markdown('<p class="sec-label">FLEET OVERVIEW (25 NODES)</p>', unsafe_allow_html=True)
-
-# ML INFO CARD (your requirement)
-st.markdown("""
-<div style="
-    background:#111318;
-    border:1px solid #1e2230;
-    border-radius:6px;
-    padding:10px 14px;
-    margin-bottom:10px;
-    font-family:Courier New;
-">
-    <div style="font-size:11px;color:#5a9fd4;letter-spacing:1px;">
-        🤖 ML STATUS: Logistic Regression Active
-    </div>
-    <div style="font-size:10px;color:#5a6070;margin-top:4px;">
-        Dataset: 1 real machine → Simulated across 25 industrial nodes
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-cols = st.columns(5)
-
-total_machines = 25
-ml_active_node = 25  # your highlighted node (can change later)
-
-for i in range(1, total_machines + 1):
-    col = cols[(i - 1) % 5]
-
-    is_active = (i == ml_active_node)
-
-    col.markdown(f"""
-    <div style="
-        background:{'#2ecc7122' if is_active else '#0d1a12'};
-        border:1px solid {'#2ecc71' if is_active else '#1a3d22'};
-        border-radius:6px;
-        padding:10px;
-        text-align:center;
-        font-family:Courier New;
-        margin-bottom:6px;
-    ">
-        <div style="font-size:9px;color:#5a6070;">
-            NODE-{i:02d}
-        </div>
-        <div style="
-            font-size:11px;
-            font-weight:700;
-            color:{'#2ecc71' if is_active else '#3db85a'};
-        ">
-            {'ACTIVE (ML)' if is_active else 'IDLE'}
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
        
    # ───────────────────────────────────────────────
 st.markdown('<hr style="margin: 20px 0; border-color: #1e2230;">', unsafe_allow_html=True)
