@@ -38,6 +38,5 @@ The core intelligence was developed in a structured environment including:
 ├── main.py               <-- Streamlit Code
 ├── machine_model.pkl     <-- The Model
 ├── scaler.pkl            <-- The Scaler
-├── SENTINEL_AI.ipynb     <-- The Colab Notebook 
 ├── requirements.txt      <-- Dependencies
 └── README.md             <-- The Documentation
