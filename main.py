@@ -522,46 +522,63 @@ with st.sidebar:
 if 'level' not in locals():
     level = "nominal"
 
-# ───────────────────────────────────────────────
-# 8. FLEET STATUS GRID (25 Machines)
-# ───────────────────────────────────────────────
-<div id="machine-grid" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
-<script>
-const totalMachines = 25;
+# ═══════════════════════════════════════════════
+# 8. FLEET STATUS GRID (25 Machines - STREAMLIT SAFE)
+# ═══════════════════════════════════════════════
 
-// your REAL ML result (from backend later)
-const mlActiveNode = 25; // keep same UI behavior you already had
+st.markdown('<p class="sec-label">FLEET OVERVIEW (25 NODES)</p>', unsafe_allow_html=True)
 
-const container = document.getElementById("machine-grid");
+# ML INFO CARD (your requirement)
+st.markdown("""
+<div style="
+    background:#111318;
+    border:1px solid #1e2230;
+    border-radius:6px;
+    padding:10px 14px;
+    margin-bottom:10px;
+    font-family:Courier New;
+">
+    <div style="font-size:11px;color:#5a9fd4;letter-spacing:1px;">
+        🤖 ML STATUS: Logistic Regression Active
+    </div>
+    <div style="font-size:10px;color:#5a6070;margin-top:4px;">
+        Dataset: 1 real machine → Simulated across 25 industrial nodes
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
-for (let i = 1; i <= totalMachines; i++) {
-    const isActive = i === mlActiveNode;
+cols = st.columns(5)
 
-    const card = document.createElement("div");
+total_machines = 25
+ml_active_node = 25  # your highlighted node (can change later)
 
-    card.style = `
-        flex:1 1 60px;
-        min-width:65px;
-        background:${isActive ? '#2ecc7122' : '#0d1a12'};
-        border:1px solid ${isActive ? '#2ecc71' : '#1a3d22'};
+for i in range(1, total_machines + 1):
+    col = cols[(i - 1) % 5]
+
+    is_active = (i == ml_active_node)
+
+    col.markdown(f"""
+    <div style="
+        background:{'#2ecc7122' if is_active else '#0d1a12'};
+        border:1px solid {'#2ecc71' if is_active else '#1a3d22'};
         border-radius:6px;
-        padding:6px;
+        padding:10px;
         text-align:center;
         font-family:Courier New;
-        ${isActive ? 'box-shadow:0 0 10px #2ecc71;' : ''}
-    `;
-
-    card.innerHTML = `
-        <div style="font-size:8px;color:#5a6070;">NODE-${String(i).padStart(2,'0')}</div>
-        <div style="font-size:10px;color:${isActive ? '#2ecc71' : '#3db85a'};font-weight:700;">
-            ${isActive ? 'ACTIVE (ML)' : 'IDLE'}
+        margin-bottom:6px;
+    ">
+        <div style="font-size:9px;color:#5a6070;">
+            NODE-{i:02d}
         </div>
-    `;
-
-    container.appendChild(card);
-}
-</script>  
-
+        <div style="
+            font-size:11px;
+            font-weight:700;
+            color:{'#2ecc71' if is_active else '#3db85a'};
+        ">
+            {'ACTIVE (ML)' if is_active else 'IDLE'}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
        
    # ───────────────────────────────────────────────
 st.markdown('<hr style="margin: 20px 0; border-color: #1e2230;">', unsafe_allow_html=True)
