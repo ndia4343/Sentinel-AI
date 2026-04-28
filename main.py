@@ -523,49 +523,47 @@ if 'level' not in locals():
     level = "nominal"
 
 # ───────────────────────────────────────────────
-# NEW: FLEET STATUS GRID (30 Machines)
+# 8. NEW: FLEET STATUS GRID (30 Machines)
 # ───────────────────────────────────────────────
-st.markdown('<p class="sec-label">INDUSTRIAL FLEET MONITORING (30 NODES)</p>', unsafe_allow_html=True)
+html = '<div style="display:flex;flex-wrap:wrap;gap:6px;">'
 
-# 1. Initialize the HTML container
-fleet_html = '<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">'
-
-# 2. Loop through all 30 machines
 for i in range(1, 31):
-    m_id = f"{i:02d}"
-    
-    # Machine 07 is our "Live" machine linked to sensor data
-    if i == 7:
-        # Use the 'level' variable you calculated in Section 8
-        status_color = "#2ecc71" if level == "nominal" else "#d4a843" if level == "warn" else "#d84040"
-        status_bg = f"{status_color}22" 
-        status_label = "ACTIVE"
-        border = f"1px solid {status_color}"
-        
-        # This adds the glowing pulse effect to Node-07
-        pulse_class = "pulse-green" if level == "nominal" else "pulse-amber" if level == "warn" else "pulse-red"
-    else:
-        # All other machines stay in a healthy simulated state
-        status_color = "#3db85a"
-        status_bg = "#0d1a12"
-        status_label = "OK"
-        border = "1px solid #1a3d22"
-        pulse_class = ""
 
-    # 3. Append each machine's HTML card
-    fleet_html += f"""
-    <div class="{pulse_class}" style="flex: 1 1 60px; min-width: 65px; background: {status_bg}; border: {border}; 
-                border-radius: 4px; padding: 6px 2px; text-align: center; font-family: 'Courier New', monospace;
-                box-shadow: { '0 0 8px ' + status_color if i == 7 else 'none' };">
-        <div style="font-size: 8px; color: #5a6070; margin-bottom: 2px;">NODE-{m_id}</div>
-        <div style="font-size: 9px; color: {status_color}; font-weight: 700;">{status_label}</div>
+    if i == 7:
+        status = "ACTIVE"
+        color = "#2ecc71"
+        bg = "#2ecc7122"
+        border = "#2ecc71"
+        shadow = "0 0 8px #2ecc71"
+    else:
+        status = "OK"
+        color = "#3db85a"
+        bg = "#0d1a12"
+        border = "#1a3d22"
+        shadow = "none"
+
+    html += f"""
+    <div style="flex:1 1 60px;min-width:65px;background:{bg};
+    border:1px solid {border};border-radius:4px;padding:6px 2px;
+    text-align:center;font-family:'Courier New', monospace;
+    box-shadow:{shadow};">
+
+        <div style="font-size:8px;color:#5a6070;margin-bottom:2px;">
+        NODE-{i:02d}
+        </div>
+
+        <div style="font-size:9px;color:{color};font-weight:700;">
+        {status}
+        </div>
+
     </div>
     """
 
-fleet_html += '</div>'
-st.markdown(fleet_html, unsafe_allow_html=True)
+html += "</div>"
 
-# ───────────────────────────────────────────────
+st.markdown(html, unsafe_allow_html=True)
+
+   # ───────────────────────────────────────────────
 st.markdown('<hr style="margin: 20px 0; border-color: #1e2230;">', unsafe_allow_html=True)
 
  
@@ -658,7 +656,7 @@ if st.button("⬡ LOGOUT", key="btn_logout"):
         st.rerun()
 
 # ═══════════════════════════════════════════════
-# 8. PREDICTION
+# 9. PREDICTION
 # ═══════════════════════════════════════════════
 temp_delta = round(float(proc_temp) - float(air_temp), 1)
 
@@ -703,7 +701,7 @@ if not st.session_state.log:
 push_history(engine_rpm, torque_nm, proc_temp, prob)
 
 # ═══════════════════════════════════════════════
-# 9. STATUS CONFIG
+# 10. STATUS CONFIG
 # ═══════════════════════════════════════════════
 if st.session_state.estop:
     sc_cls   = "sc-r"; dot_col = "#d84040"; h_col = "#d84040"
@@ -733,7 +731,7 @@ mode_badge = ("LIVE" if (live_mode and not st.session_state.estop)
               else "MANUAL")
 
 # ═══════════════════════════════════════════════
-# 10. MAIN HEADER
+# 11. MAIN HEADER
 # ═══════════════════════════════════════════════
 st.markdown(
     f'<p style="font-family:Courier New;font-size:20px;font-weight:700;'
@@ -750,7 +748,7 @@ st.markdown(
     unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════
-# 11. FIVE TABS
+# 12. FIVE TABS
 # ═══════════════════════════════════════════════
 tab_dash, tab_sensors, tab_charts, tab_alerts, tab_about = st.tabs([
     "📊  DASHBOARD",
@@ -1152,7 +1150,7 @@ with tab_about:
 """, unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════
-# 12. AUTO-REFRESH  (live mode only)
+# 13. AUTO-REFRESH  (live mode only)
 # ═══════════════════════════════════════════════
 if (live_mode
         and not st.session_state.estop
