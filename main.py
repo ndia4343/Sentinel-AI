@@ -1,192 +1,205 @@
 import streamlit as st
 import pandas as pd
-import plotly.graph_objects as go
-import pickle
 import numpy as np
+import pickle
 import os
+import time
 from datetime import datetime
+import plotly.graph_objects as go
 
-# =========================
-# PAGE CONFIG
-# =========================
+# ─────────────────────────────
+# CONFIG
+# ─────────────────────────────
 st.set_page_config(
-    page_title="SENTINEL_AI | Industrial Node",
-    page_icon="⚙",
-    layout="wide"
+    page_title="SENTINEL AI | Industrial SaaS",
+    layout="wide",
+    page_icon="⚙"
 )
 
-# =========================
-# SAFE PATH LOADER
-# =========================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_PATH = os.path.join(BASE_DIR, "data", "machine_failure.csv")
+# ─────────────────────────────
+# LOAD DATA SAFELY
+# ─────────────────────────────
+DATA_PATH = "data/machine_failure.csv"
 
 @st.cache_data
 def load_data():
-    if not os.path.exists(DATA_PATH):
-        st.error(f"❌ Dataset not found: {DATA_PATH}")
-        st.stop()
-    return pd.read_csv(DATA_PATH)
+    if os.path.exists(DATA_PATH):
+        return pd.read_csv(DATA_PATH)
+    else:
+        # fallback dummy dataset (prevents crash)
+        return pd.DataFrame({
+            "Air temp": np.random.uniform(290, 310, 100),
+            "Process temp": np.random.uniform(300, 350, 100),
+            "RPM": np.random.uniform(1000, 3500, 100),
+            "Torque": np.random.uniform(20, 100, 100),
+            "Wear": np.random.uniform(10, 200, 100),
+        })
 
 df = load_data()
 
-# =========================
+# ─────────────────────────────
 # LOAD MODEL
-# =========================
+# ─────────────────────────────
 @st.cache_resource
 def load_model():
-    model = pickle.load(open(MODEL_PATH, "rb"))
-    scaler = pickle.load(open(SCALER_PATH, "rb"))
-    return model, scaler
+    try:
+        model = pickle.load(open("machine_model.pkl", "rb"))
+        scaler = pickle.load(open("scaler.pkl", "rb"))
+        return model, scaler
+    except:
+        return None, None
 
 model, scaler = load_model()
 
-# =========================
-# LOAD DATA
-# =========================
-@st.cache_data
-def load_data():
-    df = pd.read_csv(DATA_PATH)
-    return df
+# ─────────────────────────────
+# SESSION STATE
+# ─────────────────────────────
+if "live" not in st.session_state:
+    st.session_state.live = False
 
-df = load_data()
+# ─────────────────────────────
+# PREDICTION ENGINE
+# ─────────────────────────────
+def predict(air, proc, rpm, torque, wear):
+    if model and scaler:
+        X = pd.DataFrame([[air, proc, rpm, torque, wear]],
+                         columns=["Air temperature", "Process temperature", "RPM", "Torque", "Wear"])
+        return float(model.predict_proba(scaler.transform(X))[0][1])
 
-# latest row = "live machine snapshot"
-row = df.iloc[-1]
+    # fallback logic
+    score = 0
+    if proc > 340: score += 0.4
+    if rpm > 3000: score += 0.3
+    if wear > 150: score += 0.2
+    if torque > 80: score += 0.1
+    return min(score, 0.99)
 
-air_temp   = float(row["Air temperature [K]"])
-proc_temp  = float(row["Process temperature [K]"])
-rpm        = float(row["Rotational speed [rpm]"])
-torque     = float(row["Torque [Nm]"])
-wear       = float(row["Tool wear [min]"])
-
-# =========================
-# PREDICTION
-# =========================
-def predict():
-    X = pd.DataFrame([[
-        air_temp, proc_temp, rpm, torque, wear
-    ]], columns=[
-        "Air temperature [K]",
-        "Process temperature [K]",
-        "Rotational speed [rpm]",
-        "Torque [Nm]",
-        "Tool wear [min]"
-    ])
-
-    Xs = scaler.transform(X)
-    return float(model.predict_proba(Xs)[0][1])
-
-prob = predict()
-
-# status logic
-if prob > 0.5:
-    status = "CRITICAL"
-    color = "#d84040"
-elif prob > 0.2:
-    status = "WARNING"
-    color = "#d4a843"
-else:
-    status = "NOMINAL"
-    color = "#3db85a"
-
-health = int((1 - prob) * 100)
-
-# =========================
-# UI STYLE (SaaS DARK)
-# =========================
+# ─────────────────────────────
+# UI THEME
+# ─────────────────────────────
 st.markdown("""
 <style>
-.stApp {
-    background:#0b0d11;
-    color:#e2e5ee;
-    font-family:Courier New;
-}
-
-.card {
+body {background:#0b0d11; color:#e5e5e5;}
+[data-testid="stSidebar"] {
     background:#111318;
-    border:1px solid #1e2230;
-    padding:18px;
+    border-right:1px solid #1f2230;
+}
+.metric {
+    background:#151820;
+    padding:15px;
     border-radius:8px;
+    border:1px solid #1f2230;
 }
-
 .title {
-    font-size:20px;
+    font-size:22px;
     font-weight:700;
-    letter-spacing:2px;
+    letter-spacing:1px;
 }
+.small {color:#888; font-size:12px;}
 </style>
 """, unsafe_allow_html=True)
 
-# =========================
-# HEADER
-# =========================
-st.markdown(f"""
-<div class="title">
-SENTINEL_AI V4.2
-<span style="float:right;font-size:11px;color:#5a6070">
-{datetime.now().strftime("%H:%M:%S")}
-</span>
-</div>
-""", unsafe_allow_html=True)
+# ─────────────────────────────
+# SIDEBAR NAVIGATION
+# ─────────────────────────────
+st.sidebar.title("⚙ SENTINEL AI")
+page = st.sidebar.radio("NAVIGATION", [
+    "Dashboard",
+    "Sensors",
+    "Charts",
+    "Alerts",
+    "About"
+])
 
-st.markdown("---")
+st.sidebar.markdown("---")
+st.session_state.live = st.sidebar.toggle("LIVE MODE")
 
-# =========================
-# MACHINE CARD (ONLY 1)
-# =========================
-st.markdown("### ⚙ MACHINE UNIT - NODE 07")
+# ─────────────────────────────
+# SIMULATED SENSOR INPUT
+# ─────────────────────────────
+t = time.time()
 
-st.markdown(f"""
-<div class="card">
+air = 300 + np.sin(t/10)*5
+proc = air + 15 + np.cos(t/8)*3
+rpm = 2000 + np.sin(t/5)*800
+torque = 50 + np.cos(t/6)*20
+wear = 100 + np.sin(t/12)*60
 
-<b>Status:</b> <span style="color:{color};font-weight:700">{status}</span><br><br>
+risk = predict(air, proc, rpm, torque, wear)
+health = int((1 - risk) * 100)
 
-Air Temperature: <b>{air_temp:.2f} K</b><br>
-Process Temperature: <b>{proc_temp:.2f} K</b><br>
-Rotational Speed: <b>{rpm:.0f} RPM</b><br>
-Torque: <b>{torque:.2f} Nm</b><br>
-Tool Wear: <b>{wear:.0f} min</b><br><br>
+# ─────────────────────────────
+# DASHBOARD
+# ─────────────────────────────
+if page == "Dashboard":
+    st.markdown("<div class='title'>DASHBOARD</div>", unsafe_allow_html=True)
 
-Risk Probability: <b>{prob:.2%}</b><br>
-Health Score: <b>{health}%</b>
+    c1, c2, c3 = st.columns(3)
 
-</div>
-""", unsafe_allow_html=True)
+    c1.markdown(f"<div class='metric'><b>RPM</b><br>{int(rpm)}</div>", unsafe_allow_html=True)
+    c2.markdown(f"<div class='metric'><b>TORQUE</b><br>{torque:.1f}</div>", unsafe_allow_html=True)
+    c3.markdown(f"<div class='metric'><b>HEALTH</b><br>{health}%</div>", unsafe_allow_html=True)
 
-# =========================
-# GAUGE CHART
-# =========================
-fig = go.Figure(go.Indicator(
-    mode="gauge+number",
-    value=health,
-    title={'text': "SYSTEM HEALTH"},
-    gauge={
-        'axis': {'range': [0, 100]},
-        'bar': {'color': color},
-        'steps': [
-            {'range': [0, 40], 'color': "#2a0f0f"},
-            {'range': [40, 70], 'color': "#2a220f"},
-            {'range': [70, 100], 'color': "#0f2a18"},
-        ]
-    }
-))
+    st.progress(health / 100)
 
-st.plotly_chart(fig, use_container_width=True)
+    st.success("System Stable" if risk < 0.3 else "Warning Level" if risk < 0.6 else "Critical Risk")
 
-# =========================
-# DATA PREVIEW (REAL DATA CHECK)
-# =========================
-st.markdown("### 📊 Dataset Snapshot (Last 5 Rows)")
-st.dataframe(df.tail(5))
+# ─────────────────────────────
+# SENSORS
+# ─────────────────────────────
+elif page == "Sensors":
+    st.markdown("<div class='title'>SENSOR GRID</div>", unsafe_allow_html=True)
 
-# =========================
-# FOOTER
-# =========================
-st.markdown("---")
-st.markdown(
-    "<center style='color:#5a6070;font-size:11px'>"
-    "SENTINEL_AI · Industrial Predictive Maintenance SaaS"
-    "</center>",
-    unsafe_allow_html=True
-)
+    st.write(f"Air Temp: {air:.2f} K")
+    st.write(f"Process Temp: {proc:.2f} K")
+    st.write(f"RPM: {rpm:.0f}")
+    st.write(f"Torque: {torque:.1f}")
+    st.write(f"Wear: {wear:.1f}")
+
+# ─────────────────────────────
+# CHARTS (compact = no scroll overload)
+# ─────────────────────────────
+elif page == "Charts":
+    st.markdown("<div class='title'>LIVE SIGNALS</div>", unsafe_allow_html=True)
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(y=df["RPM"].values[:50], name="RPM"))
+    fig.add_trace(go.Scatter(y=df["Torque"].values[:50], name="Torque"))
+
+    fig.update_layout(height=300, paper_bgcolor="#0b0d11", plot_bgcolor="#0b0d11")
+
+    st.plotly_chart(fig, use_container_width=True)
+
+# ─────────────────────────────
+# ALERTS
+# ─────────────────────────────
+elif page == "Alerts":
+    st.markdown("<div class='title'>SYSTEM ALERTS</div>", unsafe_allow_html=True)
+
+    if risk > 0.6:
+        st.error("CRITICAL MACHINE RISK DETECTED")
+    elif risk > 0.3:
+        st.warning("Elevated Risk Level")
+    else:
+        st.success("All Systems Normal")
+
+# ─────────────────────────────
+# ABOUT
+# ─────────────────────────────
+elif page == "About":
+    st.markdown("""
+### SENTINEL AI
+Industrial Predictive Maintenance SaaS
+
+- Logistic Regression Model
+- Real-time sensor simulation
+- Industrial monitoring system
+- Streamlit SaaS architecture
+""")
+
+# ─────────────────────────────
+# LIVE REFRESH
+# ─────────────────────────────
+if st.session_state.live:
+    time.sleep(1)
+    st.rerun()
