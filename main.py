@@ -19,10 +19,16 @@ st.set_page_config(
 # SAFE PATH LOADER
 # =========================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_PATH = os.path.join(BASE_DIR, "data", "machine_faiure.csv")
+DATA_PATH = os.path.join(BASE_DIR, "data", "machine_failure.csv")
 
-MODEL_PATH = os.path.join(BASE_DIR, "machine_model.pkl")
-SCALER_PATH = os.path.join(BASE_DIR, "scaler.pkl")
+@st.cache_data
+def load_data():
+    if not os.path.exists(DATA_PATH):
+        st.error(f"❌ Dataset not found: {DATA_PATH}")
+        st.stop()
+    return pd.read_csv(DATA_PATH)
+
+df = load_data()
 
 # =========================
 # LOAD MODEL
