@@ -526,12 +526,10 @@ if 'level' not in locals():
 # ───────────────────────────────────────────────
 # 8. NEW: FLEET STATUS GRID (30 Machines)
 # ───────────────────────────────────────────────
-
 html = '<div style="display:flex;flex-wrap:wrap;gap:6px;">'
 
 for i in range(1, 31):
 
-    # ACTIVE NODE
     if i == 7:
         status = "ACTIVE"
         color = "#2ecc71"
@@ -546,24 +544,17 @@ for i in range(1, 31):
         shadow = "none"
 
     html += f"""
-    <div style="
-        flex:1 1 60px;
-        min-width:65px;
-        background:{bg};
-        border:1px solid {border};
-        border-radius:4px;
-        padding:6px 2px;
-        text-align:center;
-        font-family:'Courier New', monospace;
-        box-shadow:{shadow};
-    ">
+    <div style="flex:1 1 60px;min-width:65px;background:{bg};
+    border:1px solid {border};border-radius:4px;padding:6px 2px;
+    text-align:center;font-family:'Courier New', monospace;
+    box-shadow:{shadow};">
 
         <div style="font-size:8px;color:#5a6070;margin-bottom:2px;">
-            NODE-{i:02d}
+        NODE-{i:02d}
         </div>
 
         <div style="font-size:9px;color:{color};font-weight:700;">
-            {status}
+        {status}
         </div>
 
     </div>
