@@ -523,21 +523,26 @@ if 'level' not in locals():
     level = "nominal"
 
 # ───────────────────────────────────────────────
+# 8. FLEET STATUS GRID (25 Machines)
 # ───────────────────────────────────────────────
-# 8. NEW: FLEET STATUS GRID (30 Machines)
-# ───────────────────────────────────────────────
+
+real_node_id = 7  # <-- your ML-driven machine index
+
 html = '<div style="display:flex;flex-wrap:wrap;gap:6px;">'
 
-for i in range(1, 31):
+for i in range(1, 26):
 
-    if i == 7:
-        status = "ACTIVE"
+    # REAL MACHINE (from ML)
+    if i == real_node_id:
+        status = "ACTIVE (ML)"
         color = "#2ecc71"
         bg = "#2ecc7122"
         border = "#2ecc71"
         shadow = "0 0 8px #2ecc71"
+
+    # FAKE / SIMULATED MACHINES
     else:
-        status = "OK"
+        status = "IDLE"
         color = "#3db85a"
         bg = "#0d1a12"
         border = "#1a3d22"
@@ -550,11 +555,11 @@ for i in range(1, 31):
     box-shadow:{shadow};">
 
         <div style="font-size:8px;color:#5a6070;margin-bottom:2px;">
-        NODE-{i:02d}
+            NODE-{i:02d}
         </div>
 
         <div style="font-size:9px;color:{color};font-weight:700;">
-        {status}
+            {status}
         </div>
 
     </div>
@@ -563,6 +568,9 @@ for i in range(1, 31):
 html += "</div>"
 
 st.markdown(html, unsafe_allow_html=True)
+
+
+
 
    # ───────────────────────────────────────────────
 st.markdown('<hr style="margin: 20px 0; border-color: #1e2230;">', unsafe_allow_html=True)
