@@ -1,205 +1,171 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import pickle
+import joblib
 import os
-import time
-from datetime import datetime
-import plotly.graph_objects as go
+from streamlit_autorefresh import st_autorefresh
 
-# ─────────────────────────────
+# ───────────────────────────────────────────────
 # CONFIG
-# ─────────────────────────────
-st.set_page_config(
-    page_title="SENTINEL AI | Industrial SaaS",
-    layout="wide",
-    page_icon="⚙"
-)
+# ───────────────────────────────────────────────
+st.set_page_config(page_title="Sentinel AI", layout="wide")
 
-# ─────────────────────────────
-# LOAD DATA SAFELY
-# ─────────────────────────────
+# LIVE REFRESH (REAL-TIME SIMULATION)
+st_autorefresh(interval=1500, limit=None, key="refresh")
+
+# ───────────────────────────────────────────────
+# DATA
+# ───────────────────────────────────────────────
 DATA_PATH = "data/machine_failure.csv"
 
 @st.cache_data
 def load_data():
-    if os.path.exists(DATA_PATH):
-        return pd.read_csv(DATA_PATH)
-    else:
-        # fallback dummy dataset (prevents crash)
-        return pd.DataFrame({
-            "Air temp": np.random.uniform(290, 310, 100),
-            "Process temp": np.random.uniform(300, 350, 100),
-            "RPM": np.random.uniform(1000, 3500, 100),
-            "Torque": np.random.uniform(20, 100, 100),
-            "Wear": np.random.uniform(10, 200, 100),
-        })
+    if not os.path.exists(DATA_PATH):
+        st.error("Dataset not found: data/machine_failure.csv")
+        st.stop()
+    return pd.read_csv(DATA_PATH)
 
 df = load_data()
 
-# ─────────────────────────────
-# LOAD MODEL
-# ─────────────────────────────
-@st.cache_resource
-def load_model():
-    try:
-        model = pickle.load(open("machine_model.pkl", "rb"))
-        scaler = pickle.load(open("scaler.pkl", "rb"))
-        return model, scaler
-    except:
-        return None, None
+# ───────────────────────────────────────────────
+# MODEL
+# ───────────────────────────────────────────────
+model = joblib.load("model.pkl")
+scaler = joblib.load("scaler.pkl")
 
-model, scaler = load_model()
+FEATURES = ["Air temperature", "Process temperature",
+            "Rotational speed", "Torque", "Tool wear"]
 
-# ─────────────────────────────
-# SESSION STATE
-# ─────────────────────────────
-if "live" not in st.session_state:
-    st.session_state.live = False
-
-# ─────────────────────────────
-# PREDICTION ENGINE
-# ─────────────────────────────
 def predict(air, proc, rpm, torque, wear):
-    if model and scaler:
-        X = pd.DataFrame([[air, proc, rpm, torque, wear]],
-                         columns=["Air temperature", "Process temperature", "RPM", "Torque", "Wear"])
-        return float(model.predict_proba(scaler.transform(X))[0][1])
+    X = pd.DataFrame([[air, proc, rpm, torque, wear]], columns=FEATURES)
+    X = scaler.transform(X)
+    return float(model.predict_proba(X)[0][1])
 
-    # fallback logic
-    score = 0
-    if proc > 340: score += 0.4
-    if rpm > 3000: score += 0.3
-    if wear > 150: score += 0.2
-    if torque > 80: score += 0.1
-    return min(score, 0.99)
+# ───────────────────────────────────────────────
+# SIDEBAR (ONLY CONTROLS)
+# ───────────────────────────────────────────────
+with st.sidebar:
+    st.title("⚙ CONTROL PANEL")
 
-# ─────────────────────────────
-# UI THEME
-# ─────────────────────────────
-st.markdown("""
-<style>
-body {background:#0b0d11; color:#e5e5e5;}
-[data-testid="stSidebar"] {
-    background:#111318;
-    border-right:1px solid #1f2230;
-}
-.metric {
-    background:#151820;
-    padding:15px;
-    border-radius:8px;
-    border:1px solid #1f2230;
-}
-.title {
-    font-size:22px;
-    font-weight:700;
-    letter-spacing:1px;
-}
-.small {color:#888; font-size:12px;}
-</style>
-""", unsafe_allow_html=True)
+    live = st.toggle("📡 LIVE MODE", True)
+    estop = st.toggle("🔴 EMERGENCY STOP", False)
 
-# ─────────────────────────────
-# SIDEBAR NAVIGATION
-# ─────────────────────────────
-st.sidebar.title("⚙ SENTINEL AI")
-page = st.sidebar.radio("NAVIGATION", [
-    "Dashboard",
-    "Sensors",
-    "Charts",
-    "Alerts",
-    "About"
+    st.markdown("---")
+    st.info("Navigation is in main tabs")
+
+# ───────────────────────────────────────────────
+# SAMPLE SENSOR (LIVE SIMULATION)
+# ───────────────────────────────────────────────
+row = df.sample(1).iloc[0]
+
+air = row["Air temperature"]
+proc = row["Process temperature"]
+rpm = row["Rotational speed"]
+torque = row["Torque"]
+wear = row["Tool wear"]
+
+# ───────────────────────────────────────────────
+# PREDICTION
+# ───────────────────────────────────────────────
+if estop:
+    risk = 0.0
+else:
+    risk = predict(air, proc, rpm, torque, wear)
+
+health = max(0, 100 - risk * 100)
+
+# STATUS LOGIC (YOUR PART — CORRECT)
+if risk > 0.5:
+    status = "CRITICAL"
+    color = "#d84040"
+elif risk > 0.2:
+    status = "WARNING"
+    color = "#d4a843"
+else:
+    status = "NORMAL"
+    color = "#3db85a"
+
+# ───────────────────────────────────────────────
+# HEADER
+# ───────────────────────────────────────────────
+st.title("🛠 SENTINEL AI — Predictive Maintenance System")
+
+# QUICK METRICS (YOU ASKED FOR THIS)
+c1, c2 = st.columns(2)
+c1.metric("⚠ Risk %", f"{risk*100:.2f}%")
+c2.metric("💚 Health %", f"{health:.2f}%")
+
+# STATUS CARD (LIVE COLOR CHANGE)
+st.markdown(
+    f"""
+    <div style="
+        background:{color};
+        padding:15px;
+        border-radius:12px;
+        color:white;
+        font-weight:700;
+        font-size:16px;">
+        STATUS: {status} | RISK: {risk*100:.2f}%
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown("---")
+
+# ───────────────────────────────────────────────
+# TABS (NO SCROLL UI)
+# ───────────────────────────────────────────────
+tab1, tab2, tab3, tab4 = st.tabs([
+    "📊 Dashboard",
+    "📡 Sensors",
+    "📈 Charts",
+    "🚨 Alerts"
 ])
 
-st.sidebar.markdown("---")
-st.session_state.live = st.sidebar.toggle("LIVE MODE")
-
-# ─────────────────────────────
-# SIMULATED SENSOR INPUT
-# ─────────────────────────────
-t = time.time()
-
-air = 300 + np.sin(t/10)*5
-proc = air + 15 + np.cos(t/8)*3
-rpm = 2000 + np.sin(t/5)*800
-torque = 50 + np.cos(t/6)*20
-wear = 100 + np.sin(t/12)*60
-
-risk = predict(air, proc, rpm, torque, wear)
-health = int((1 - risk) * 100)
-
-# ─────────────────────────────
+# ───────────────────────────────────────────────
 # DASHBOARD
-# ─────────────────────────────
-if page == "Dashboard":
-    st.markdown("<div class='title'>DASHBOARD</div>", unsafe_allow_html=True)
+# ───────────────────────────────────────────────
+with tab1:
+    st.subheader("Machine Overview")
 
-    c1, c2, c3 = st.columns(3)
+    cols = st.columns(5)
+    cols[0].metric("Air", f"{air:.1f}")
+    cols[1].metric("Process", f"{proc:.1f}")
+    cols[2].metric("RPM", rpm)
+    cols[3].metric("Torque", f"{torque:.1f}")
+    cols[4].metric("Wear", wear)
 
-    c1.markdown(f"<div class='metric'><b>RPM</b><br>{int(rpm)}</div>", unsafe_allow_html=True)
-    c2.markdown(f"<div class='metric'><b>TORQUE</b><br>{torque:.1f}</div>", unsafe_allow_html=True)
-    c3.markdown(f"<div class='metric'><b>HEALTH</b><br>{health}%</div>", unsafe_allow_html=True)
-
-    st.progress(health / 100)
-
-    st.success("System Stable" if risk < 0.3 else "Warning Level" if risk < 0.6 else "Critical Risk")
-
-# ─────────────────────────────
+# ───────────────────────────────────────────────
 # SENSORS
-# ─────────────────────────────
-elif page == "Sensors":
-    st.markdown("<div class='title'>SENSOR GRID</div>", unsafe_allow_html=True)
+# ───────────────────────────────────────────────
+with tab2:
+    st.subheader("Live Sensor Data")
+    st.json({
+        "air_temp": air,
+        "process_temp": proc,
+        "rpm": rpm,
+        "torque": torque,
+        "wear": wear
+    })
 
-    st.write(f"Air Temp: {air:.2f} K")
-    st.write(f"Process Temp: {proc:.2f} K")
-    st.write(f"RPM: {rpm:.0f}")
-    st.write(f"Torque: {torque:.1f}")
-    st.write(f"Wear: {wear:.1f}")
+# ───────────────────────────────────────────────
+# CHARTS
+# ───────────────────────────────────────────────
+with tab3:
+    st.subheader("Dataset Trends")
+    st.line_chart(df[["Air temperature", "Process temperature"]])
+    st.line_chart(df[["Rotational speed", "Torque"]])
 
-# ─────────────────────────────
-# CHARTS (compact = no scroll overload)
-# ─────────────────────────────
-elif page == "Charts":
-    st.markdown("<div class='title'>LIVE SIGNALS</div>", unsafe_allow_html=True)
-
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(y=df["RPM"].values[:50], name="RPM"))
-    fig.add_trace(go.Scatter(y=df["Torque"].values[:50], name="Torque"))
-
-    fig.update_layout(height=300, paper_bgcolor="#0b0d11", plot_bgcolor="#0b0d11")
-
-    st.plotly_chart(fig, use_container_width=True)
-
-# ─────────────────────────────
+# ───────────────────────────────────────────────
 # ALERTS
-# ─────────────────────────────
-elif page == "Alerts":
-    st.markdown("<div class='title'>SYSTEM ALERTS</div>", unsafe_allow_html=True)
+# ───────────────────────────────────────────────
+with tab4:
+    st.subheader("System Alerts")
 
-    if risk > 0.6:
-        st.error("CRITICAL MACHINE RISK DETECTED")
-    elif risk > 0.3:
-        st.warning("Elevated Risk Level")
+    if risk > 0.5:
+        st.error("CRITICAL FAILURE RISK")
+    elif risk > 0.2:
+        st.warning("WARNING: Elevated Risk")
     else:
-        st.success("All Systems Normal")
-
-# ─────────────────────────────
-# ABOUT
-# ─────────────────────────────
-elif page == "About":
-    st.markdown("""
-### SENTINEL AI
-Industrial Predictive Maintenance SaaS
-
-- Logistic Regression Model
-- Real-time sensor simulation
-- Industrial monitoring system
-- Streamlit SaaS architecture
-""")
-
-# ─────────────────────────────
-# LIVE REFRESH
-# ─────────────────────────────
-if st.session_state.live:
-    time.sleep(1)
-    st.rerun()
+        st.success("System Operating Normally")
