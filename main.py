@@ -3,10 +3,11 @@ import pandas as pd
 import plotly.graph_objects as go
 import pickle
 import numpy as np
+import os
 from datetime import datetime
 
 # =========================
-# CONFIG
+# PAGE CONFIG
 # =========================
 st.set_page_config(
     page_title="SENTINEL_AI | Industrial Node",
@@ -15,27 +16,36 @@ st.set_page_config(
 )
 
 # =========================
+# SAFE PATH LOADER
+# =========================
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_PATH = os.path.join(BASE_DIR, "data", "machine_faiure.csv")
+
+MODEL_PATH = os.path.join(BASE_DIR, "machine_model.pkl")
+SCALER_PATH = os.path.join(BASE_DIR, "scaler.pkl")
+
+# =========================
 # LOAD MODEL
 # =========================
 @st.cache_resource
-def load_assets():
-    model = pickle.load(open("machine_model.pkl", "rb"))
-    scaler = pickle.load(open("scaler.pkl", "rb"))
+def load_model():
+    model = pickle.load(open(MODEL_PATH, "rb"))
+    scaler = pickle.load(open(SCALER_PATH, "rb"))
     return model, scaler
 
-model, scaler = load_assets()
+model, scaler = load_model()
 
 # =========================
-# LOAD REAL DATASET (YOUR CSV)
+# LOAD DATA
 # =========================
 @st.cache_data
 def load_data():
-    df = pd.read_csv("data.csv")  # your uploaded dataset
+    df = pd.read_csv(DATA_PATH)
     return df
 
 df = load_data()
 
-# take latest record = "live machine snapshot"
+# latest row = "live machine snapshot"
 row = df.iloc[-1]
 
 air_temp   = float(row["Air temperature [K]"])
@@ -45,7 +55,7 @@ torque     = float(row["Torque [Nm]"])
 wear       = float(row["Tool wear [min]"])
 
 # =========================
-# MODEL PREDICTION
+# PREDICTION
 # =========================
 def predict():
     X = pd.DataFrame([[
@@ -63,6 +73,7 @@ def predict():
 
 prob = predict()
 
+# status logic
 if prob > 0.5:
     status = "CRITICAL"
     color = "#d84040"
@@ -76,39 +87,27 @@ else:
 health = int((1 - prob) * 100)
 
 # =========================
-# CSS (your style preserved)
+# UI STYLE (SaaS DARK)
 # =========================
 st.markdown("""
 <style>
-.stApp { background:#0b0d11; color:#e2e5ee; }
-
-.metric {
-    background:#151820;
-    border:1px solid #1e2230;
-    padding:14px;
-    border-radius:6px;
-    font-family:Courier New;
-}
-
-.title {
-    font-size:20px;
-    font-weight:700;
-    font-family:Courier New;
-    letter-spacing:2px;
-}
-
-.badge {
-    padding:4px 10px;
-    border-radius:4px;
-    font-size:10px;
+.stApp {
+    background:#0b0d11;
+    color:#e2e5ee;
     font-family:Courier New;
 }
 
 .card {
     background:#111318;
     border:1px solid #1e2230;
-    padding:16px;
-    border-radius:6px;
+    padding:18px;
+    border-radius:8px;
+}
+
+.title {
+    font-size:20px;
+    font-weight:700;
+    letter-spacing:2px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -130,27 +129,27 @@ st.markdown("---")
 # =========================
 # MACHINE CARD (ONLY 1)
 # =========================
-st.markdown("### ⚙ MACHINE NODE - UNIT 07")
+st.markdown("### ⚙ MACHINE UNIT - NODE 07")
 
 st.markdown(f"""
 <div class="card">
-<b>Status:</b> 
-<span style="color:{color};font-weight:700">{status}</span>
-<br><br>
 
-Air Temp: <b>{air_temp:.1f} K</b><br>
-Process Temp: <b>{proc_temp:.1f} K</b><br>
-RPM: <b>{rpm:.0f}</b><br>
-Torque: <b>{torque:.1f} Nm</b><br>
+<b>Status:</b> <span style="color:{color};font-weight:700">{status}</span><br><br>
+
+Air Temperature: <b>{air_temp:.2f} K</b><br>
+Process Temperature: <b>{proc_temp:.2f} K</b><br>
+Rotational Speed: <b>{rpm:.0f} RPM</b><br>
+Torque: <b>{torque:.2f} Nm</b><br>
 Tool Wear: <b>{wear:.0f} min</b><br><br>
 
 Risk Probability: <b>{prob:.2%}</b><br>
 Health Score: <b>{health}%</b>
+
 </div>
 """, unsafe_allow_html=True)
 
 # =========================
-# GAUGE (simple)
+# GAUGE CHART
 # =========================
 fig = go.Figure(go.Indicator(
     mode="gauge+number",
@@ -160,9 +159,9 @@ fig = go.Figure(go.Indicator(
         'axis': {'range': [0, 100]},
         'bar': {'color': color},
         'steps': [
-            {'range': [0, 40], 'color': "#3d1010"},
-            {'range': [40, 70], 'color': "#3d2e0a"},
-            {'range': [70, 100], 'color': "#0d1a12"},
+            {'range': [0, 40], 'color': "#2a0f0f"},
+            {'range': [40, 70], 'color': "#2a220f"},
+            {'range': [70, 100], 'color': "#0f2a18"},
         ]
     }
 ))
@@ -170,24 +169,17 @@ fig = go.Figure(go.Indicator(
 st.plotly_chart(fig, use_container_width=True)
 
 # =========================
-# FEATURE BREAKDOWN
+# DATA PREVIEW (REAL DATA CHECK)
 # =========================
-st.markdown("### 📊 FEATURE SNAPSHOT")
-
-st.write({
-    "Air Temp": air_temp,
-    "Process Temp": proc_temp,
-    "RPM": rpm,
-    "Torque": torque,
-    "Wear": wear
-})
+st.markdown("### 📊 Dataset Snapshot (Last 5 Rows)")
+st.dataframe(df.tail(5))
 
 # =========================
 # FOOTER
 # =========================
 st.markdown("---")
 st.markdown(
-    "<center style='color:#5a6070;font-family:Courier New;font-size:11px'>"
+    "<center style='color:#5a6070;font-size:11px'>"
     "SENTINEL_AI · Industrial Predictive Maintenance SaaS"
     "</center>",
     unsafe_allow_html=True
