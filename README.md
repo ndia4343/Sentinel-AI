@@ -4,7 +4,7 @@
 ![Pandas](https://img.shields.io/badge/pandas-%23150458.svg?style=for-the-badge&logo=pandas&logoColor=white)
 ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
 
-# 🛡️ SENTINEL_AI: Industrial Machine Failure Prediction System
+# 🛡️ System SENTINEL AI — Predictive Maintenance SaaS Platform
 
 ### [🚀 Live Demo Link](INSERT_YOUR_STREAMLIT_URL_HERE)
 
