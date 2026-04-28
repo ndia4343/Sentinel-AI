@@ -525,52 +525,46 @@ if 'level' not in locals():
 # ───────────────────────────────────────────────
 # 8. FLEET STATUS GRID (25 Machines)
 # ───────────────────────────────────────────────
+real_node_id = ml_output  # <-- THIS is the key change
 
-real_node_id = 7  # <-- your ML-driven machine index
+fleet_html = '<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">'
 
-html = '<div style="display:flex;flex-wrap:wrap;gap:6px;">'
+for i in range(1, 31):
+    m_id = f"{i:02d}"
 
-for i in range(1, 26):
-
-    # REAL MACHINE (from ML)
     if i == real_node_id:
-        status = "ACTIVE (ML)"
-        color = "#2ecc71"
-        bg = "#2ecc7122"
-        border = "#2ecc71"
-        shadow = "0 0 8px #2ecc71"
-
-    # FAKE / SIMULATED MACHINES
+        status_color = "#2ecc71"
+        status_bg = f"{status_color}22"
+        status_label = "ACTIVE (ML)"
+        border = f"1px solid {status_color}"
+        shadow = f"0 0 8px {status_color}"
     else:
-        status = "IDLE"
-        color = "#3db85a"
-        bg = "#0d1a12"
-        border = "#1a3d22"
+        status_color = "#3db85a"
+        status_bg = "#0d1a12"
+        status_label = "IDLE"
+        border = "1px solid #1a3d22"
         shadow = "none"
 
-    html += f"""
-    <div style="flex:1 1 60px;min-width:65px;background:{bg};
-    border:1px solid {border};border-radius:4px;padding:6px 2px;
-    text-align:center;font-family:'Courier New', monospace;
-    box-shadow:{shadow};">
+    fleet_html += f"""
+    <div style="flex: 1 1 60px; min-width: 65px; background: {status_bg};
+                border: {border}; border-radius: 4px; padding: 6px 2px;
+                text-align: center; font-family: 'Courier New', monospace;
+                box-shadow: {shadow};">
 
-        <div style="font-size:8px;color:#5a6070;margin-bottom:2px;">
-            NODE-{i:02d}
+        <div style="font-size: 8px; color: #5a6070; margin-bottom: 2px;">
+            NODE-{m_id}
         </div>
 
-        <div style="font-size:9px;color:{color};font-weight:700;">
-            {status}
+        <div style="font-size: 9px; color: {status_color}; font-weight: 700;">
+            {status_label}
         </div>
 
     </div>
     """
 
-html += "</div>"
+fleet_html += '</div>'
 
-st.markdown(html, unsafe_allow_html=True)
-
-
-
+st.sidebar.markdown(fleet_html, unsafe_allow_html=True)
 
    # ───────────────────────────────────────────────
 st.markdown('<hr style="margin: 20px 0; border-color: #1e2230;">', unsafe_allow_html=True)
