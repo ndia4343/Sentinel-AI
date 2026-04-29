@@ -7,6 +7,8 @@ import time
 import math
 from datetime import datetime
 
+MODEL_NAME = "Logistic Regression"
+MODEL_ACCURACY = 97.3
 # ───────────────────────────────────────────────
 # Helper function: convert hex color to rgba
 # ───────────────────────────────────────────────
