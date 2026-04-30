@@ -255,129 +255,106 @@ def alert_row_html(a):
 st.markdown("""
 <style>
 
-.stApp { background-color: #0b0d11; color: #e2e5ee; }
+/* =========================
+   BASE THEME
+========================= */
+.stApp {
+    background-color: #0b0d11;
+    color: #e2e5ee;
+}
 
-/* FORCE WIDTH */
+/* =========================
+   HEADER FIX
+========================= */
+header[data-testid="stHeader"] {
+    background: rgba(0,0,0,0) !important;
+}
+
+/* =========================
+   SIDEBAR LOCKED STYLE
+========================= */
 section[data-testid="stSidebar"] {
     min-width: 300px !important;
     width: 300px !important;
     max-width: 300px !important;
 }
 
-/* SIDEBAR STYLE */
 [data-testid="stSidebar"] {
     background-color: #111318 !important;
     border-right: 1px solid #1e2230 !important;
 }
 
-/* TEXT COLOR */
+/* FORCE SIDEBAR TEXT CONSISTENT */
 [data-testid="stSidebar"] * {
     color: #e2e5ee !important;
 }
 
-/* SPACING */
-[data-testid="stSidebar"] > div:first-child {
-    padding-top: 1rem !important;
+/* =========================
+   REMOVE WHITE / FOCUS SHIFT BUG
+========================= */
+input:focus,
+textarea:focus {
+    background: #0b0d11 !important;
+    color: #e2e5ee !important;
+    border-color: #3db85a !important;
+    box-shadow: none !important;
 }
 
-/* FIX HEADER / MENU */
-#MainMenu, footer { visibility: hidden; }
-header { visibility: visible !important; }
+button:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
 
-/* Expander styling */
-[data-testid="stExpander"] {
+/* =========================
+   EXPANDER (READ ONLY FIX)
+   → now visually "status panel style"
+========================= */
+[data-testid="stExpander"] summary {
     background: #111318 !important;
+    color: #e2e5ee !important;
     border: 1px solid #1e2230 !important;
     border-radius: 6px !important;
-}
-[data-testid="stExpander"] summary {
-    color: #e2e5ee !important;
+    padding: 8px 10px !important;
     font-family: 'Courier New', monospace !important;
     font-size: 11px !important;
     letter-spacing: 1.5px !important;
 }
 
-/* Tab bar */
+/* REMOVE WHITE ICON ISSUE */
+[data-testid="stExpander"] svg {
+    fill: #5a6070 !important;
+}
+
+/* CONTENT PANEL */
+[data-testid="stExpander"] [data-testid="stVerticalBlock"] {
+    background: #0b0d11 !important;
+    border-top: 1px solid #1e2230 !important;
+    padding: 10px !important;
+}
+
+/* =========================
+   TABS
+========================= */
 .stTabs [data-baseweb="tab-list"] {
     background: #111318 !important;
     border-bottom: 1px solid #1e2230 !important;
-    gap: 0 !important;
 }
+
 .stTabs [data-baseweb="tab"] {
-    background: transparent !important;
     color: #5a6070 !important;
     font-family: 'Courier New', monospace !important;
     font-size: 11px !important;
     letter-spacing: 1.5px !important;
-    padding: 10px 20px !important;
-    border-bottom: 2px solid transparent !important;
 }
+
 .stTabs [aria-selected="true"] {
     color: #e2e5ee !important;
-    border-bottom: 2px solid rgba(58,134,255,0.1) !important;
-}
-.stTabs [data-baseweb="tab-panel"] { padding: 16px 0 0 0 !important; }
-
-/* Pulse animations */
-@keyframes pulse-green {
-    0%   { box-shadow: 0 0 0 0 rgba(61,184,90,.45); }
-    70%  { box-shadow: 0 0 0 10px rgba(61,184,90,0); }
-    100% { box-shadow: 0 0 0 0 rgba(61,184,90,0); }
-}
-@keyframes pulse-amber {
-    0%   { box-shadow: 0 0 0 0 rgba(212,168,67,.5); }
-    70%  { box-shadow: 0 0 0 10px rgba(212,168,67,0); }
-    100% { box-shadow: 0 0 0 0 rgba(212,168,67,0); }
-}
-@keyframes pulse-red {
-    0%   { box-shadow: 0 0 0 0 rgba(216,64,64,.6); }
-    70%  { box-shadow: 0 0 0 14px rgba(216,64,64,0); }
-    100% { box-shadow: 0 0 0 0 rgba(216,64,64,0); }
-}
-.sc-n { background:#0d1a12; border:1px solid #1a3d22;
-        animation:pulse-green 2.5s infinite; }
-.sc-w { background:#1a150a; border:1px solid #3d2e0a;
-        animation:pulse-amber 1.8s infinite; }
-.sc-r { background:#1a0d0d; border:1px solid #3d1010;
-        animation:pulse-red   1s   infinite; }
-.status-card {
-    border-radius:6px; padding:14px 18px;
-    display:flex; align-items:center; gap:14px;
-    font-family:'Courier New',monospace; margin-bottom:6px;
+    border-bottom: 2px solid #3db85a !important;
 }
 
-/* Health bar */
-.hb-wrap { background:#1e2230; border-radius:4px; height:7px;
-           width:100%; overflow:hidden; }
-.hb-fill { height:100%; border-radius:4px; transition:width .6s; }
-
-/* Log box */
-.log-box {
-    background:#0a0c10; border:1px solid #1e2230; border-radius:6px;
-    padding:10px 14px; font-family:'Courier New',monospace;
-    font-size:11px; color:#e2e5ee; line-height:1.9;
-}
-
-/* Metric card */
-.metric-card {
-    background:#151820; border:1px solid #1e2230;
-    border-radius:6px; padding:14px 18px;
-    font-family:'Courier New',monospace;
-}
-.mc-label { font-size:9px; color:#5a6070; letter-spacing:2px; margin-bottom:4px; }
-.mc-value { font-size:26px; font-weight:700; color:#d4a843; }
-.mc-unit  { font-size:12px; color:#7a8090; margin-left:4px; }
-
-/* Cause badge */
-.cause-badge {
-    display:inline-flex; align-items:center; gap:6px;
-    background:#2a1510; border:1px solid #5a2010;
-    border-radius:4px; padding:5px 12px; margin-top:7px;
-    font-family:'Courier New',monospace;
-    font-size:10px; color:#f09070; letter-spacing:.5px;
-}
-
-/* Sidebar buttons */
+/* =========================
+   BUTTON SYSTEM (GREEN STANDARD)
+========================= */
 .stButton > button {
     width: 100% !important;
     background: #1a1d26 !important;
@@ -387,114 +364,97 @@ header { visibility: visible !important; }
     font-family: 'Courier New', monospace !important;
     font-size: 11px !important;
     letter-spacing: 1px !important;
-    padding: 8px 12px !important;
-    margin-bottom: 4px !important;
 }
+
 .stButton > button:hover {
+    border-color: #3db85a !important;
     background: #1e2230 !important;
-    border-color: #3a4050 !important;
 }
 
-/* Checkbox */
-[data-testid="stCheckbox"] label {
-    color: #e2e5ee !important;
-    font-family: 'Courier New', monospace !important;
-    font-size: 12px !important;
+/* =========================
+   STATUS COLORS (FIXED GREEN SYSTEM)
+========================= */
+.sc-n {
+    background: #0d1a12;
+    border: 1px solid #1a3d22;
 }
 
-/* Sliders */
-[data-testid="stSlider"] label {
-    color: #e2e5ee !important;
-    font-family: 'Courier New', monospace !important;
-    font-size: 11px !important;
-}
-[data-testid="stSlider"] [data-testid="stMarkdownContainer"] p {
-    color: #d4a843 !important;
-    font-family: 'Courier New', monospace !important;
-    font-weight: 700 !important;
+.sc-w {
+    background: #1a150a;
+    border: 1px solid #3d2e0a;
 }
 
-/* Text inputs */
-[data-testid="stTextInput"] label {
-    color: #e2e5ee !important;
-    font-family: 'Courier New', monospace !important;
-    font-size: 11px !important;
-    letter-spacing: 1px !important;
-}
-[data-testid="stTextInput"] input {
-    background: #0b0d11 !important;
-    border: 1px solid #1e2230 !important;
-    color: #e2e5ee !important;
-    font-family: 'Courier New', monospace !important;
-    border-radius: 4px !important;
-}
-[data-testid="stTextInput"] input:focus {
-    border-color: #3a86ff !important;
-    box-shadow: none !important;
+.sc-r {
+    background: #1a0d0d;
+    border: 1px solid #3d1010;
 }
 
-/* Divider */
-hr { border-color:#1e2230 !important; margin:10px 0 !important; }
+/* =========================
+   METRICS
+========================= */
+.metric-card {
+    background: #151820;
+    border: 1px solid #1e2230;
+    border-radius: 6px;
+    padding: 14px 18px;
+    font-family: 'Courier New', monospace;
+}
 
-/* Section label */
+/* =========================
+   LABELS
+========================= */
 .sec-label {
-    font-family:'Courier New',monospace; font-size:9px;
-    color:#5a6070; letter-spacing:2px; margin-bottom:6px;
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    color: #5a6070;
+    letter-spacing: 2px;
 }
 
-/* Mode badge */
+/* =========================
+   MODE BADGE (GREEN FIXED)
+========================= */
 .mode-badge {
-    display:inline-block; font-family:'Courier New',monospace;
-    font-size:9px; background:#1a2230; border:1px solid #3a6090;
-    color:#5a9fd4; border-radius:3px; padding:2px 7px;
-    letter-spacing:1px; margin-left:10px; vertical-align:middle;
+    display: inline-block;
+    font-size: 9px;
+    background: #0d1a12;
+    border: 1px solid #1a3d22;
+    color: #3db85a;
+    border-radius: 3px;
+    padding: 2px 7px;
 }
 
-/* About section styling */
-.about-section {
-    background: #111318 !important;
-    border: 1px solid #1e2230 !important;
-    border-radius: 8px !important;
-    padding: 20px 24px !important;
-    margin-bottom: 12px !important;
-    font-family: 'Courier New', monospace !important;
+/* =========================
+   SLIDERS / INPUTS FIX
+========================= */
+[data-testid="stSlider"] *,
+[data-testid="stTextInput"] input {
     color: #e2e5ee !important;
+    background: #0b0d11 !important;
+    border-color: #1e2230 !important;
 }
-.about-title {
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    color: #d4a843 !important;
-    letter-spacing: 2px !important;
-    margin-bottom: 10px !important;
+
+/* =========================
+   HIDE DEFAULT UI
+========================= */
+#MainMenu, footer {
+    visibility: hidden !important;
 }
-.about-text {
-    font-size: 11px !important;
-    color: #c8cdd8 !important;
-    line-height: 1.8 !important;
+
+/* =========================
+   REMOVE STREAMLIT BLUE GHOST STYLES
+========================= */
+button:focus-visible {
+    outline: none !important;
 }
-.tech-badge {
-    display: inline-block !important;
-    background: #1a2230 !important;
-    border: 1px solid #3a6090 !important;
-    color: #5a9fd4 !important;
-    border-radius: 4px !important;
-    padding: 4px 10px !important;
-    margin: 4px 6px 4px 0 !important;
-    font-size: 10px !important;
-    letter-spacing: 1px !important;
-}
+
 </style>
 """, unsafe_allow_html=True)
-
 # ═══════════════════════════════════════════════
 # 6. LOGIN SCREEN
 # ═══════════════════════════════════════════════
- # ═══════════════════════════════════════════════
-# 6. LOGIN SCREEN (ISOLATED)
-# ═══════════════════════════════════════════════
 if not st.session_state.logged_in:
 
-    # ❌ hide sidebar completely before login
+    # ❌ hide sidebar before login
     st.markdown("""
         <style>
         [data-testid="stSidebar"] { display: none; }
@@ -504,83 +464,81 @@ if not st.session_state.logged_in:
     _, col, _ = st.columns([1, 1.1, 1])
 
     with col:
-        st.markdown("<div style='height:50px'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height:60px'></div>", unsafe_allow_html=True)
 
-        st.markdown("""<div style="background:#111318;border:1px solid #1e2230;
-            border-radius:8px;padding:30px;font-family:'Courier New',monospace;">
-            <div style="font-size:19px;font-weight:700;color:#e2e5ee;">
-            SENTINEL_AI v4.2</div>
-        </div>""", unsafe_allow_html=True)
+        # ✅ FULL ORIGINAL UI RESTORED
+        st.markdown("""
+<div style="background:#111318;border:1px solid #1e2230;border-radius:8px;
+            padding:30px 28px 20px 28px;font-family:'Courier New',monospace;">
 
-        uid = st.text_input("OPERATOR ID", key="uid_input")
-        upw = st.text_input("ACCESS KEY", type="password", key="upw_input")
+  <div style="font-size:19px;font-weight:700;color:#e2e5ee;
+              letter-spacing:2px;margin-bottom:3px">
+    SENTINEL_AI v4.2
+  </div>
 
+  <div style="font-size:9px;color:#5a6070;letter-spacing:3px;
+              margin-bottom:8px">
+    INDUSTRIAL PREDICTIVE MAINTENANCE
+  </div>
+
+  <!-- ✅ GREEN BADGE BACK -->
+  <div style="display:inline-block;font-size:9px;
+              background:#0d1a12;
+              border:1px solid #1a3d22;
+              color:#3db85a;
+              border-radius:3px;
+              padding:2px 8px;
+              letter-spacing:1px;
+              margin-bottom:22px">
+    ● SECURE NODE ACCESS
+  </div>
+
+</div>
+""", unsafe_allow_html=True)
+
+        # Inputs
+        uid = st.text_input(
+            "OPERATOR ID",
+            placeholder="engineer@facility.com",
+            key="uid_input"
+        )
+
+        upw = st.text_input(
+            "ACCESS KEY",
+            placeholder="••••••••••",
+            type="password",
+            key="upw_input"
+        )
+
+        # Button
         if st.button("AUTHENTICATE  →", key="login_btn"):
             if uid.strip() and upw.strip():
                 st.session_state.logged_in = True
                 st.session_state.user = uid
+
+                add_log("INFO", f"Operator {uid} authenticated.", "#3db85a")  # ✅ green log
+
+                st.success("Access Granted")
                 st.rerun()
             else:
-                st.error("Enter both fields.")
+                st.error("Enter both Operator ID and Access Key.")
 
-    # 🔴 CRITICAL: STOP EVERYTHING BELOW
-    st.stop()              
+        # Footer
+        st.markdown("""
+<div style="text-align:center;font-size:10px;color:#3a4050;
+            font-family:'Courier New',monospace;margin-top:12px;letter-spacing:1px">
+  SENTINEL SYSTEMS · UNIT-07 · GLOBAL NODE
+</div>
+""", unsafe_allow_html=True)
 
-# ───────────────────────────────────────────────
-# SENSOR CHARTS EXPANDER (AT TOP - BEFORE SIDEBAR)
-# ───────────────────────────────────────────────
-with st.expander("📈 Sensor Charts (Last 30 readings)"):
-    labels = st.session_state.hist_labels
-
-    if len(labels) < 2:
-        st.info("Waiting for data — adjust sliders or enable Live Streaming to populate charts.")
-    else:
-        PBGC  = "#0b0d11"
-        GRIDC = "#1e2230"
-        FONTC = "#5a6070"
-        FONTF = "Courier New"
-
-        def mk_fig(title, y_data, color):
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(
-                x=labels,
-                y=y_data,
-                mode="lines",
-                line=dict(color=color, width=1.5),
-                fill="tozeroy",
-                fillcolor=hex_to_rgba(color, alpha=0.1),
-            ))
-            fig.update_layout(
-                title=dict(
-                    text=title,
-                    font=dict(color="#e2e5ee", size=11, family=FONTF),
-                    x=0.01),
-                paper_bgcolor=PBGC,
-                plot_bgcolor=PBGC,
-                margin=dict(l=40, r=10, t=36, b=30),
-                height=180,
-                xaxis=dict(showticklabels=False, gridcolor=GRIDC, zeroline=False, showline=False),
-                yaxis=dict(gridcolor=GRIDC, tickfont=dict(color=FONTC, size=9, family=FONTF), zeroline=False),
-                showlegend=False,
-            )
-            return fig
-
-        r1c1, r1c2 = st.columns(2)
-        with r1c1:
-            st.plotly_chart(mk_fig("ENGINE RPM", st.session_state.hist_rpm, "#3a86ff"), use_container_width=True)
-        with r1c2:
-            st.plotly_chart(mk_fig("TORQUE (Nm)", st.session_state.hist_torq, "#d4a843"), use_container_width=True)
-
-        r2c1, r2c2 = st.columns(2)
-        with r2c1:
-            st.plotly_chart(mk_fig("PROCESS TEMP (K)", st.session_state.hist_temp, "#f09070"), use_container_width=True)
-        with r2c2:
-            st.plotly_chart(mk_fig("FAILURE PROBABILITY (%)", st.session_state.hist_risk, "#d84040"), use_container_width=True)
+    # 🚫 HARD STOP → nothing else loads
+    st.stop()
 
 # ═══════════════════════════════════════════════
-# 7. SIDEBAR
+# 7. SIDEBAR (FIXED + WIRED UX)
 # ═══════════════════════════════════════════════
 with st.sidebar:
+
     st.markdown(
         '<p style="font-family:Courier New;font-size:16px;font-weight:700;'
         'color:#e2e5ee;letter-spacing:2px;margin-bottom:8px">'
@@ -588,29 +546,60 @@ with st.sidebar:
         unsafe_allow_html=True
     )
 
-    # 🔥 SAFETY ANCHOR
-    with st.expander("⚙ System Status", expanded=True):
-        st.write(f"System: {'HALTED' if st.session_state.estop else 'ACTIVE'}")
-        st.write(f"Time: {now_ts()}")
-        st.write(f"Mode: {'LIVE' if st.session_state.live_mode else 'MANUAL'}")
-        st.write(f"Override: {'ON' if st.session_state.override else 'OFF'}")
+    # =========================
+    # STATUS PANEL (NO EXPANDER)
+    # =========================
+    estop = st.session_state.estop
+    live  = st.session_state.live_mode
+    override = st.session_state.override
 
-    # ⬇️ Continue normally
+    status_color = "#3db85a" if not estop else "#d84040"
+    status_text = "ACTIVE" if not estop else "HALTED"
+
+    st.markdown(f"""
+    <div style="
+        background:#0d1a12;
+        border:1px solid #1a3d22;
+        padding:10px 12px;
+        border-radius:5px;
+        font-family:Courier New;
+        font-size:11px;
+        color:{status_color};
+        letter-spacing:1px;
+        margin-bottom:10px;">
+        ● SYSTEM STATUS: {status_text}<br>
+        ⏱ TIME: {now_ts()}<br>
+        📡 MODE: {"LIVE" if live else "MANUAL"}<br>
+        ⚙ OVERRIDE: {"ON" if override else "OFF"}
+    </div>
+    """, unsafe_allow_html=True)
+
+    # =========================
+    # OP MODE
+    # =========================
     st.markdown('<p class="sec-label">OPERATIONAL MODE</p>', unsafe_allow_html=True)
 
     live_mode = st.checkbox(
-        "📡  LIVE STREAMING",
+        "📡 LIVE STREAMING",
         value=st.session_state.live_mode,
-        key="cb_live",
+        key="cb_live"
     )
-    st.session_state.live_mode = live_mode
-    if st.session_state.estop:
+
+    if not st.session_state.estop:
+        st.session_state.live_mode = live_mode
+    else:
+        st.session_state.live_mode = False
         live_mode = False
 
     st.markdown("---")
+
+    # =========================
+    # SENSOR TELEMETRY (FIXED LINK TO E-STOP)
+    # =========================
     st.markdown('<p class="sec-label">SENSOR TELEMETRY</p>', unsafe_allow_html=True)
 
-    if live_mode and not st.session_state.estop:
+    if live_mode and not estop:
+
         t = time.time()
         air_temp   = round(300.0 + 5.0 * np.sin(t / 10), 1)
         proc_temp  = round(air_temp + 10 + 2.0 * np.cos(t / 5), 1)
@@ -618,35 +607,55 @@ with st.sidebar:
         torque_nm  = round(40.0 + 20.0 * np.sin(t / 3), 1)
         tool_wear  = int(round(180 + 50 * np.sin(t / 20)))
 
-        st.markdown(
-            '<div style="background:#0d1a2a;border:1px solid #1a3a5a;'
-            'border-radius:5px;padding:7px 12px;font-family:Courier New;'
-            'font-size:11px;color:#5a9fd4;letter-spacing:1px;margin-bottom:10px">'
-            '🛰  AI monitoring live streams...</div>',
-            unsafe_allow_html=True)
+        st.markdown("""
+        <div style="
+            background:#0d1a2a;
+            border:1px solid #1a3a5a;
+            border-radius:5px;
+            padding:8px 12px;
+            font-family:Courier New;
+            font-size:11px;
+            color:#5a9fd4;
+            letter-spacing:1px;
+            margin-bottom:10px;">
+            🛰 LIVE SENSOR STREAM ACTIVE
+        </div>
+        """, unsafe_allow_html=True)
 
     else:
-        air_temp   = st.slider("Air Temperature (K)", 285.0, 315.0, 300.0, 0.5)
-        proc_temp  = st.slider("Process Temp (K)", 295.0, 360.0, 310.0, 0.5)
-        engine_rpm = st.slider("Engine RPM", 500, 4000, 1500, 10)
-        torque_nm  = st.slider("Torque (Nm)", 5.0, 120.0, 40.0, 0.5)
-        tool_wear  = st.slider("Tool Wear (min)", 0, 250, 50, 1)
+        # disabled mode when E-STOP
+        disabled = estop
+
+        air_temp   = st.slider("Air Temperature (K)", 285.0, 315.0, 300.0, 0.5, disabled=disabled)
+        proc_temp  = st.slider("Process Temp (K)", 295.0, 360.0, 310.0, 0.5, disabled=disabled)
+        engine_rpm = st.slider("Engine RPM", 500, 4000, 1500, 10, disabled=disabled)
+        torque_nm  = st.slider("Torque (Nm)", 5.0, 120.0, 40.0, 0.5, disabled=disabled)
+        tool_wear  = st.slider("Tool Wear (min)", 0, 250, 50, 1, disabled=disabled)
 
     st.markdown("---")
+
+    # =========================
+    # AUTOMATION
+    # =========================
     st.markdown('<p class="sec-label">AUTOMATION</p>', unsafe_allow_html=True)
 
-    ov_lbl = "⚙ OVERRIDE ACTIVE" if st.session_state.override else "⚙ MANUAL OVERRIDE"
-    if st.button(ov_lbl, key="btn_ov", disabled=st.session_state.estop):
-        st.session_state.override = not st.session_state.override
+    ov_lbl = "⚙ OVERRIDE: ON" if override else "⚙ OVERRIDE: OFF"
 
-    es_lbl = "🔴 E-STOP ENGAGED" if st.session_state.estop else "⬛ EMERGENCY STOP"
+    if st.button(ov_lbl, key="btn_ov", disabled=estop):
+        st.session_state.override = not override
+
+    es_lbl = "🔴 E-STOP ENGAGED" if estop else "⬛ EMERGENCY STOP"
+
     if st.button(es_lbl, key="btn_es"):
-        st.session_state.estop = not st.session_state.estop
+        st.session_state.estop = not estop
+        if estop:
+            st.session_state.live_mode = False
 
     st.markdown("---")
+
     st.markdown(
-        f'<p style="font-family:Courier New;font-size:9px;color:#3a4050;'
-        f'letter-spacing:1px">NODE: UNIT-07 &nbsp;|&nbsp; {now_ts()}</p>',
+        f'<p style="font-family:Courier New;font-size:9px;color:#3a4050;letter-spacing:1px">'
+        f'NODE: UNIT-07 | {now_ts()}</p>',
         unsafe_allow_html=True
     )
 
