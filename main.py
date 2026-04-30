@@ -11,8 +11,6 @@ from datetime import datetime
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-if "live_mode" not in st.session_state:
-    st.session_state.live_mode = True
 # ───────────────────────────────────────────────
 # Constants
 # ───────────────────────────────────────────────
@@ -491,53 +489,42 @@ hr { border-color:#1e2230 !important; margin:10px 0 !important; }
 # ═══════════════════════════════════════════════
 # 6. LOGIN SCREEN
 # ═══════════════════════════════════════════════
+ # ═══════════════════════════════════════════════
+# 6. LOGIN SCREEN (ISOLATED)
+# ═══════════════════════════════════════════════
 if not st.session_state.logged_in:
+
+    # ❌ hide sidebar completely before login
+    st.markdown("""
+        <style>
+        [data-testid="stSidebar"] { display: none; }
+        </style>
+    """, unsafe_allow_html=True)
+
     _, col, _ = st.columns([1, 1.1, 1])
+
     with col:
         st.markdown("<div style='height:50px'></div>", unsafe_allow_html=True)
 
-        st.markdown("""
-<div style="background:#111318;border:1px solid #1e2230;border-radius:8px;
-            padding:30px 28px 20px 28px;font-family:'Courier New',monospace;">
-  <div style="font-size:19px;font-weight:700;color:#e2e5ee;
-              letter-spacing:2px;margin-bottom:3px">SENTINEL_AI v4.2</div>
-  <div style="font-size:9px;color:#5a6070;letter-spacing:3px;
-              margin-bottom:8px">INDUSTRIAL PREDICTIVE MAINTENANCE</div>
-  <div style="display:inline-block;font-size:9px;background:#0d1a2a;
-              border:1px solid #1a3a5a;color:#5a9fd4;border-radius:3px;
-              padding:2px 8px;letter-spacing:1px;margin-bottom:22px">
-    SECURE NODE ACCESS · ISO 13849
-  </div>
-</div>
-""", unsafe_allow_html=True)
+        st.markdown("""<div style="background:#111318;border:1px solid #1e2230;
+            border-radius:8px;padding:30px;font-family:'Courier New',monospace;">
+            <div style="font-size:19px;font-weight:700;color:#e2e5ee;">
+            SENTINEL_AI v4.2</div>
+        </div>""", unsafe_allow_html=True)
 
-        uid = st.text_input("OPERATOR ID", placeholder="engineer@facility.com",
-                            key="uid_input")
-        upw = st.text_input("ACCESS KEY",  placeholder="••••••••••",
-                            type="password", key="upw_input")
+        uid = st.text_input("OPERATOR ID", key="uid_input")
+        upw = st.text_input("ACCESS KEY", type="password", key="upw_input")
 
-      
-if st.button("AUTHENTICATE  →", key="login_btn"):
-    if uid.strip() and upw.strip():
-        st.session_state.logged_in = True
-        st.session_state.user = uid   # 👈 store user (important for SaaS feel)
+        if st.button("AUTHENTICATE  →", key="login_btn"):
+            if uid.strip() and upw.strip():
+                st.session_state.logged_in = True
+                st.session_state.user = uid
+                st.rerun()
+            else:
+                st.error("Enter both fields.")
 
-        add_log("INFO", f"Operator {uid} authenticated.", "#5a9fd4")
-
-        st.success("Access Granted")  # optional UI feedback
-        st.rerun()
-
-    else:
-        st.error("Enter both Operator ID and Access Key.")        
-
-
-        st.markdown("""
-<div style="text-align:center;font-size:10px;color:#3a4050;
-            font-family:'Courier New',monospace;margin-top:12px;letter-spacing:1px">
-  SENTINEL SYSTEMS · UNIT-07 · GLOBAL NODE
-</div>
-""", unsafe_allow_html=True)
-    st.stop()
+    # 🔴 CRITICAL: STOP EVERYTHING BELOW
+    st.stop()              
 
 # ───────────────────────────────────────────────
 # SENSOR CHARTS EXPANDER (AT TOP - BEFORE SIDEBAR)
