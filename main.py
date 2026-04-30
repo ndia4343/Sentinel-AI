@@ -581,7 +581,7 @@ with st.expander("📈 Sensor Charts (Last 30 readings)"):
 # ═══════════════════════════════════════════════
 # 7. SIDEBAR
 # ═══════════════════════════════════════════════
-    with st.sidebar:
+with st.sidebar:
     st.markdown(
         '<p style="font-family:Courier New;font-size:16px;font-weight:700;'
         'color:#e2e5ee;letter-spacing:2px;margin-bottom:8px">'
@@ -589,17 +589,16 @@ with st.expander("📈 Sensor Charts (Last 30 readings)"):
         unsafe_allow_html=True
     )
 
-    # 🔥 THIS IS THE SAFETY ANCHOR
+    # 🔥 SAFETY ANCHOR
     with st.expander("⚙ System Status", expanded=True):
-    st.write(f"System: {'HALTED' if st.session_state.estop else 'ACTIVE'}")
-    st.write(f"Time: {now_ts()}")
-    st.write(f"Mode: {'LIVE' if st.session_state.live_mode else 'MANUAL'}")
-    st.write(f"Override: {'ON' if st.session_state.override else 'OFF'}")
-    
+        st.write(f"System: {'HALTED' if st.session_state.estop else 'ACTIVE'}")
+        st.write(f"Time: {now_ts()}")
+        st.write(f"Mode: {'LIVE' if st.session_state.live_mode else 'MANUAL'}")
+        st.write(f"Override: {'ON' if st.session_state.override else 'OFF'}")
+
     # ⬇️ Continue normally
     st.markdown('<p class="sec-label">OPERATIONAL MODE</p>', unsafe_allow_html=True)
-    
-    # Live mode checkbox
+
     live_mode = st.checkbox(
         "📡  LIVE STREAMING",
         value=st.session_state.live_mode,
@@ -610,16 +609,15 @@ with st.expander("📈 Sensor Charts (Last 30 readings)"):
         live_mode = False
 
     st.markdown("---")
-    
     st.markdown('<p class="sec-label">SENSOR TELEMETRY</p>', unsafe_allow_html=True)
 
     if live_mode and not st.session_state.estop:
-        t          = time.time()
-        air_temp   = round(300.0 + 5.0  * np.sin(t / 10),  1)
+        t = time.time()
+        air_temp   = round(300.0 + 5.0 * np.sin(t / 10), 1)
         proc_temp  = round(air_temp + 10 + 2.0 * np.cos(t / 5), 1)
         engine_rpm = int(round(1500 + 300 * np.sin(t / 2)))
-        torque_nm  = round(40.0   + 20.0 * np.sin(t / 3),  1)
-        tool_wear  = int(round(180 + 50  * np.sin(t / 20)))
+        torque_nm  = round(40.0 + 20.0 * np.sin(t / 3), 1)
+        tool_wear  = int(round(180 + 50 * np.sin(t / 20)))
 
         st.markdown(
             '<div style="background:#0d1a2a;border:1px solid #1a3a5a;'
@@ -628,28 +626,12 @@ with st.expander("📈 Sensor Charts (Last 30 readings)"):
             '🛰  AI monitoring live streams...</div>',
             unsafe_allow_html=True)
 
-        def trow(lbl, val):
-            return (
-                f'<div style="display:flex;justify-content:space-between;'
-                f'padding:5px 0;border-bottom:1px solid #1e2230;'
-                f'font-family:Courier New;">'
-                f'<span style="font-size:11px;color:#e2e5ee">{lbl}</span>'
-                f'<span style="font-size:12px;color:#d4a843;font-weight:700">'
-                f'{val}</span></div>'
-            )
-        st.markdown(
-            trow("Air Temp (K)",     f"{air_temp:.1f}")  +
-            trow("Process Temp (K)", f"{proc_temp:.1f}") +
-            trow("Engine RPM",       str(engine_rpm))    +
-            trow("Torque (Nm)",      f"{torque_nm:.1f}") +
-            trow("Tool Wear (min)",  str(tool_wear)),
-            unsafe_allow_html=True)
     else:
-        air_temp   = st.slider("Air Temperature (K)",  285.0, 315.0, 300.0, 0.5)
-        proc_temp  = st.slider("Process Temp (K)",     295.0, 360.0, 310.0, 0.5)
-        engine_rpm = st.slider("Engine RPM",           500,   4000,  1500,  10)
-        torque_nm  = st.slider("Torque (Nm)",          5.0,   120.0, 40.0,  0.5)
-        tool_wear  = st.slider("Tool Wear (min)",      0,     250,   50,    1)
+        air_temp   = st.slider("Air Temperature (K)", 285.0, 315.0, 300.0, 0.5)
+        proc_temp  = st.slider("Process Temp (K)", 295.0, 360.0, 310.0, 0.5)
+        engine_rpm = st.slider("Engine RPM", 500, 4000, 1500, 10)
+        torque_nm  = st.slider("Torque (Nm)", 5.0, 120.0, 40.0, 0.5)
+        tool_wear  = st.slider("Tool Wear (min)", 0, 250, 50, 1)
 
     st.markdown("---")
     st.markdown('<p class="sec-label">AUTOMATION</p>', unsafe_allow_html=True)
@@ -657,31 +639,21 @@ with st.expander("📈 Sensor Charts (Last 30 readings)"):
     ov_lbl = "⚙ OVERRIDE ACTIVE" if st.session_state.override else "⚙ MANUAL OVERRIDE"
     if st.button(ov_lbl, key="btn_ov", disabled=st.session_state.estop):
         st.session_state.override = not st.session_state.override
-        if st.session_state.override:
-            add_log("WARN", "Manual override engaged. Automation paused.", "#d4a843")
-        else:
-            add_log("INFO", "Manual override released. Automation resumed.", "#5a9fd4")
 
     es_lbl = "🔴 E-STOP ENGAGED" if st.session_state.estop else "⬛ EMERGENCY STOP"
     if st.button(es_lbl, key="btn_es"):
-        if not st.session_state.estop:
-            st.session_state.estop = True
-            add_log("CRIT", "EMERGENCY STOP triggered. System halted.", "#d84040")
-            add_alert("crit", "Emergency Stop Engaged", "All actuators halted · Unit-07")
-        else:
-            st.session_state.estop = False
-            add_log("INFO", "System reset. Resuming normal operations.", "#3db85a")
-            add_alert("ok",  "System Reset", "Normal operations resumed · Unit-07")
+        st.session_state.estop = not st.session_state.estop
 
     st.markdown("---")
     st.markdown(
         f'<p style="font-family:Courier New;font-size:9px;color:#3a4050;'
         f'letter-spacing:1px">NODE: UNIT-07 &nbsp;|&nbsp; {now_ts()}</p>',
-        unsafe_allow_html=True)
+        unsafe_allow_html=True
+    )
 
     if st.button("⬡ LOGOUT", key="btn_logout"):
-        st.session_state.logged_in  = False
-        st.session_state.live_mode  = False
+        st.session_state.logged_in = False
+        st.session_state.live_mode = False
         st.rerun()
 
 # ═══════════════════════════════════════════════
