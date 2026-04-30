@@ -1009,115 +1009,96 @@ with tab_alerts:
 # ───────────────────────────────────────────────
 # TAB 5 · ABOUT
 # ───────────────────────────────────────────────
-st.markdown(f"""
-<div style="font-family:'Courier New',monospace;max-width:750px">
+def about_section():
+    st.markdown(f"""
+    <div style="font-family:'Courier New',monospace;max-width:750px">
 
-<!-- HEADER -->
-<div style="font-size:16px;font-weight:700;color:#e2e5ee;
-            letter-spacing:2px;margin-bottom:2px">
-  SENTINEL_AI v4.2
-</div>
-
-<div style="font-size:10px;color:#5a6070;letter-spacing:3px;margin-bottom:14px">
-  INDUSTRIAL PREDICTIVE MAINTENANCE SYSTEM
-</div>
-
-<!-- HERO BLOCK -->
-<div style="background:#111318;border:1px solid #1e2230;
-            border-radius:8px;padding:14px;margin-bottom:12px">
-
-  <div style="font-size:11px;color:#c8cdd8;line-height:1.6">
-    AI-driven industrial monitoring system that predicts equipment failure using
-    sensor telemetry, machine learning models, and real-time anomaly detection.
-  </div>
-
-  <div style="margin-top:10px;font-size:10px;color:#3db85a;letter-spacing:1px">
-    ● SYSTEM ACTIVE · LIVE TELEMETRY · LOGISTIC REGRESSION ENGINE
-  </div>
-
-</div>
-
-<!-- GRID -->
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-
-  <!-- ML ENGINE -->
-  <div style="background:#151820;border:1px solid #1e2230;
-              border-radius:6px;padding:14px">
-    <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
-      ML ENGINE
+    <!-- HEADER -->
+    <div style="font-size:16px;font-weight:700;color:#e2e5ee;letter-spacing:2px;">
+      SENTINEL_AI v4.2
     </div>
-    <div style="font-size:11px;color:#e2e5ee;line-height:1.8">
-      Algorithm: {MODEL_NAME}<br>
-      Accuracy: {MODEL_ACCURACY}%<br>
-      Input Features: 5<br>
-      Output: Failure probability<br>
-      Threshold: 50% = Critical
+
+    <div style="font-size:10px;color:#5a6070;letter-spacing:3px;margin-bottom:14px">
+      INDUSTRIAL PREDICTIVE MAINTENANCE SYSTEM
     </div>
-  </div>
 
-  <!-- LIVE FEATURES -->
-  <div style="background:#151820;border:1px solid #1e2230;
-              border-radius:6px;padding:14px">
-    <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
-      LIVE INPUT FEATURES
+    <!-- HERO -->
+    <div style="background:#111318;border:1px solid #1e2230;border-radius:8px;padding:14px;margin-bottom:12px">
+
+      <div style="font-size:11px;color:#c8cdd8;line-height:1.6">
+        AI-driven industrial monitoring system that predicts equipment failure using
+        sensor telemetry, machine learning models, and real-time anomaly detection.
+      </div>
+
+      <div style="margin-top:10px;font-size:10px;color:#3db85a;letter-spacing:1px">
+        ● SYSTEM ACTIVE · LIVE TELEMETRY · LOGISTIC REGRESSION ENGINE
+      </div>
+
     </div>
-    <div style="font-size:11px;color:#e2e5ee;line-height:1.8">
-      Air Temp: {air_temp} K<br>
-      Process Temp: {proc_temp} K<br>
-      RPM: {engine_rpm}<br>
-      Torque: {torque_nm} Nm<br>
-      Tool Wear: {tool_wear} min
+
+    <!-- GRID -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+
+      <div style="background:#151820;border:1px solid #1e2230;border-radius:6px;padding:14px">
+        <div style="font-size:9px;color:#5a6070;letter-spacing:2px;">ML ENGINE</div>
+        <div style="font-size:11px;color:#e2e5ee;line-height:1.8">
+          Algorithm: {MODEL_NAME}<br>
+          Accuracy: {MODEL_ACCURACY}%<br>
+          Input Features: 5<br>
+          Output: Failure probability<br>
+          Threshold: 50%
+        </div>
+      </div>
+
+      <div style="background:#151820;border:1px solid #1e2230;border-radius:6px;padding:14px">
+        <div style="font-size:9px;color:#5a6070;letter-spacing:2px;">LIVE FEATURES</div>
+        <div style="font-size:11px;color:#e2e5ee;line-height:1.8">
+          Air Temp: {air_temp} K<br>
+          Process Temp: {proc_temp} K<br>
+          RPM: {engine_rpm}<br>
+          Torque: {torque_nm} Nm<br>
+          Tool Wear: {tool_wear}
+        </div>
+      </div>
+
+      <div style="background:#151820;border:1px solid #1e2230;border-radius:6px;padding:14px">
+        <div style="font-size:9px;color:#5a6070;letter-spacing:2px;">PREDICTIVE</div>
+        <div style="font-size:11px;color:#e2e5ee;line-height:1.8">
+          • Thermal overload detection<br>
+          • Torque strain analysis<br>
+          • Tool wear prediction<br>
+          • RPM anomaly detection
+        </div>
+      </div>
+
+      <div style="background:#151820;border:1px solid #1e2230;border-radius:6px;padding:14px">
+        <div style="font-size:9px;color:#5a6070;letter-spacing:2px;">SAFETY SYSTEM</div>
+        <div style="font-size:11px;color:#e2e5ee;line-height:1.8">
+          • Emergency Stop<br>
+          • Manual Override<br>
+          • Real-time Alerts<br>
+          • Event Logging
+        </div>
+      </div>
+
     </div>
-  </div>
 
-  <!-- PREDICTIVE -->
-  <div style="background:#151820;border:1px solid #1e2230;
-              border-radius:6px;padding:14px">
-    <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
-      PREDICTIVE CAPABILITIES
+    <!-- FOOTER -->
+    <div style="background:#0d1a2a;border:1px solid #1a3a5a;border-radius:6px;padding:12px">
+
+      <div style="font-size:9px;color:#5a9fd4;letter-spacing:2px;margin-bottom:6px">
+        SYSTEM DEPENDENCIES
+      </div>
+
+      <div style="font-size:11px;color:#8ab0d0;line-height:1.8">
+        • machine_model.pkl<br>
+        • scaler.pkl
+      </div>
+
     </div>
-    <div style="font-size:11px;color:#e2e5ee;line-height:1.8">
-      • Thermal overload detection<br>
-      • Torque strain analysis<br>
-      • Tool wear prediction<br>
-      • RPM anomaly detection<br>
-      • Failure probability modeling
+
     </div>
-  </div>
-
-  <!-- SAFETY -->
-  <div style="background:#151820;border:1px solid #1e2230;
-              border-radius:6px;padding:14px">
-    <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
-      SAFETY SYSTEM
-    </div>
-    <div style="font-size:11px;color:#e2e5ee;line-height:1.8">
-      • Emergency Stop (E-STOP)<br>
-      • Manual Override Control<br>
-      • Real-time Alerting<br>
-      • Event Logging System
-    </div>
-  </div>
-
-</div>
-
-<!-- REQUIRED FILES (CLEAN FOOTER) -->
-<div style="background:#0d1a2a;border:1px solid #1a3a5a;
-            border-radius:6px;padding:12px">
-
-  <div style="font-size:9px;color:#5a9fd4;letter-spacing:2px;margin-bottom:6px">
-    SYSTEM DEPENDENCIES
-  </div>
-
-  <div style="font-size:11px;color:#8ab0d0;line-height:1.8">
-    • machine_model.pkl — trained ML model<br>
-    • scaler.pkl — feature normalization pipeline
-  </div>
-
-</div>
-
-</div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 # ═══════════════════════════════════════════════
 # 13. AUTO-REFRESH  (live mode only)
 # ═══════════════════════════════════════════════
