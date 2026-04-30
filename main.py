@@ -581,7 +581,7 @@ with st.expander("📈 Sensor Charts (Last 30 readings)"):
 # ═══════════════════════════════════════════════
 # 7. SIDEBAR
 # ═══════════════════════════════════════════════
-with st.sidebar:
+    with st.sidebar:
     st.markdown(
         '<p style="font-family:Courier New;font-size:16px;font-weight:700;'
         'color:#e2e5ee;letter-spacing:2px;margin-bottom:8px">'
@@ -590,7 +590,7 @@ with st.sidebar:
     )
 
     # 🔥 THIS IS THE SAFETY ANCHOR
-   with st.expander("⚙ System Status", expanded=True):
+    with st.expander("⚙ System Status", expanded=True):
     st.write(f"System: {'HALTED' if st.session_state.estop else 'ACTIVE'}")
     st.write(f"Time: {now_ts()}")
     st.write(f"Mode: {'LIVE' if st.session_state.live_mode else 'MANUAL'}")
