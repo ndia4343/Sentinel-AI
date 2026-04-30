@@ -7,7 +7,6 @@ import time
 import math
 
 
-from styles.theme import load_css
 from ui.login import render_login
 from ui.sidebar import render_sidebar
 from ui.charts import render_charts
