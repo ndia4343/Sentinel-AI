@@ -254,6 +254,19 @@ st.markdown("""
 
 #MainMenu, footer, header { visibility: hidden; }
 
+/* Expander styling */
+[data-testid="stExpander"] {
+    background: #111318 !important;
+    border: 1px solid #1e2230 !important;
+    border-radius: 6px !important;
+}
+[data-testid="stExpander"] summary {
+    color: #e2e5ee !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 11px !important;
+    letter-spacing: 1.5px !important;
+}
+
 /* Tab bar */
 .stTabs [data-baseweb="tab-list"] {
     background: #111318 !important;
@@ -486,6 +499,57 @@ if not st.session_state.logged_in:
 </div>
 """, unsafe_allow_html=True)
     st.stop()
+
+# ───────────────────────────────────────────────
+# SENSOR CHARTS EXPANDER (AT TOP - BEFORE SIDEBAR)
+# ───────────────────────────────────────────────
+with st.expander("📈 Sensor Charts (Last 30 readings)"):
+    labels = st.session_state.hist_labels
+
+    if len(labels) < 2:
+        st.info("Waiting for data — adjust sliders or enable Live Streaming to populate charts.")
+    else:
+        PBGC  = "#0b0d11"
+        GRIDC = "#1e2230"
+        FONTC = "#5a6070"
+        FONTF = "Courier New"
+
+        def mk_fig(title, y_data, color):
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=labels,
+                y=y_data,
+                mode="lines",
+                line=dict(color=color, width=1.5),
+                fill="tozeroy",
+                fillcolor=hex_to_rgba(color, alpha=0.1),
+            ))
+            fig.update_layout(
+                title=dict(
+                    text=title,
+                    font=dict(color="#e2e5ee", size=11, family=FONTF),
+                    x=0.01),
+                paper_bgcolor=PBGC,
+                plot_bgcolor=PBGC,
+                margin=dict(l=40, r=10, t=36, b=30),
+                height=180,
+                xaxis=dict(showticklabels=False, gridcolor=GRIDC, zeroline=False, showline=False),
+                yaxis=dict(gridcolor=GRIDC, tickfont=dict(color=FONTC, size=9, family=FONTF), zeroline=False),
+                showlegend=False,
+            )
+            return fig
+
+        r1c1, r1c2 = st.columns(2)
+        with r1c1:
+            st.plotly_chart(mk_fig("ENGINE RPM", st.session_state.hist_rpm, "#3a86ff"), use_container_width=True)
+        with r1c2:
+            st.plotly_chart(mk_fig("TORQUE (Nm)", st.session_state.hist_torq, "#d4a843"), use_container_width=True)
+
+        r2c1, r2c2 = st.columns(2)
+        with r2c1:
+            st.plotly_chart(mk_fig("PROCESS TEMP (K)", st.session_state.hist_temp, "#f09070"), use_container_width=True)
+        with r2c2:
+            st.plotly_chart(mk_fig("FAILURE PROBABILITY (%)", st.session_state.hist_risk, "#d84040"), use_container_width=True)
 
 # ═══════════════════════════════════════════════
 # 7. SIDEBAR
@@ -797,54 +861,8 @@ with tab_sensors:
 # TAB 3 · CHARTS
 # ───────────────────────────────────────────────
 with tab_charts:
-    labels = st.session_state.hist_labels
-
-    if len(labels) < 2:
-        st.info("Waiting for data — adjust sliders or enable Live Streaming to populate charts.")
-    else:
-        PBGC  = "#0b0d11"
-        GRIDC = "#1e2230"
-        FONTC = "#5a6070"
-        FONTF = "Courier New"
-
-        def mk_fig(title, y_data, color):
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(
-                x=labels,
-                y=y_data,
-                mode="lines",
-                line=dict(color=color, width=1.5),
-                fill="tozeroy",
-                fillcolor=hex_to_rgba(color, alpha=0.1),
-            ))
-            fig.update_layout(
-                title=dict(
-                    text=title,
-                    font=dict(color="#e2e5ee", size=11, family=FONTF),
-                    x=0.01),
-                paper_bgcolor=PBGC,
-                plot_bgcolor=PBGC,
-                margin=dict(l=40, r=10, t=36, b=30),
-                height=180,
-                xaxis=dict(showticklabels=False, gridcolor=GRIDC, zeroline=False, showline=False),
-                yaxis=dict(gridcolor=GRIDC, tickfont=dict(color=FONTC, size=9, family=FONTF), zeroline=False),
-                showlegend=False,
-            )
-            return fig
-
-        st.markdown('<p class="sec-label">SENSOR TRENDS (LAST 30 READINGS)</p>', unsafe_allow_html=True)
-        
-        r1c1, r1c2 = st.columns(2)
-        with r1c1:
-            st.plotly_chart(mk_fig("ENGINE RPM", st.session_state.hist_rpm, "#3a86ff"), use_container_width=True)
-        with r1c2:
-            st.plotly_chart(mk_fig("TORQUE (Nm)", st.session_state.hist_torq, "#d4a843"), use_container_width=True)
-
-        r2c1, r2c2 = st.columns(2)
-        with r2c1:
-            st.plotly_chart(mk_fig("PROCESS TEMP (K)", st.session_state.hist_temp, "#f09070"), use_container_width=True)
-        with r2c2:
-            st.plotly_chart(mk_fig("FAILURE PROBABILITY (%)", st.session_state.hist_risk, "#d84040"), use_container_width=True)
+    st.markdown('<p class="sec-label">HISTORICAL TRENDS</p>', unsafe_allow_html=True)
+    st.info("💡 Tip: The live sensor charts are available in the collapsible section at the top of the page.")
 
 # ───────────────────────────────────────────────
 # TAB 4 · ALERTS
