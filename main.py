@@ -5,19 +5,32 @@ import pickle
 import numpy as np
 import time
 import math
+
+
+from styles.theme import load_css
+from ui.login import render_login
+from ui.sidebar import render_sidebar
+from ui.charts import render_charts
 from datetime import datetime
 
+# ───────────────────────────────────────────────
+# Constants
+# ───────────────────────────────────────────────
 MODEL_NAME = "Logistic Regression"
 MODEL_ACCURACY = 97.3
 
 # ───────────────────────────────────────────────
 # Helper function: convert hex color to rgba
 # ───────────────────────────────────────────────
+
 def hex_to_rgba(hex_color, alpha=0.1):
     hex_color = hex_color.lstrip("#")
     r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
     return f"rgba({r}, {g}, {b}, {alpha})"
-    
+
+def now_ts():
+    return datetime.now().strftime("%H:%M:%S")
+
 # ═══════════════════════════════════════════════
 # 1. PAGE CONFIG
 # ═══════════════════════════════════════════════
@@ -38,35 +51,37 @@ def load_assets():
         return model, scaler
     except:
         return None, None
-
+# ═══════════════════════════════════════════════
+# 3. MODEL LOADING
+# ═══════════════════════════════════════════════
 model, scaler = load_assets()
 
 # ═══════════════════════════════════════════════
 # 3. SESSION STATE
 # ═══════════════════════════════════════════════
-defaults = {
-    "logged_in":   False,
-    "live_mode":   False,
-    "log":         [],
-    "alert_hist":  [],
-    "override":    False,
-    "estop":       False,
-    "prev_level":  "nominal",
-    "hist_rpm":    [0]*30,
-    "hist_torq":   [0]*30,
-    "hist_temp":   [0]*30,
-    "hist_risk":   [0]*30,
+DEFAULT_STATE = {
+    "logged_in": False,
+    "live_mode": False,
+    "log": [],
+    "alert_hist": [],
+    "override": False,
+    "estop": False,
+    "prev_level": "nominal",
+    "hist_rpm": [0]*30,
+    "hist_torq": [0]*30,
+    "hist_temp": [0]*30,
+    "hist_risk": [0]*30,
     "hist_labels": [f"T-{i}" for i in range(30)],
 }
-for k, v in defaults.items():
-    if k not in st.session_state:
-        st.session_state[k] = v
 
+def init_state():
+    for k, v in DEFAULT_STATE.items():
+        if k not in st.session_state:
+            st.session_state[k] = v
+init_state()             
 # ═══════════════════════════════════════════════
 # 4. HELPERS
 # ═══════════════════════════════════════════════
-def now_ts():
-    return datetime.now().strftime("%H:%M:%S")
 
 def add_log(tag, msg, color):
     st.session_state.log.append(
@@ -235,7 +250,6 @@ def alert_row_html(a):
   </div>
   <div style="font-size:10px;color:#3a4050">{a['time']}</div>
 </div>"""
-
 # ═══════════════════════════════════════════════
 # 5. GLOBAL CSS
 # ═══════════════════════════════════════════════
@@ -737,13 +751,12 @@ st.markdown(
 # 11. FIVE TABS
 # ═══════════════════════════════════════════════
 tab_dash, tab_sensors, tab_charts, tab_alerts, tab_about = st.tabs([
-    "📊  DASHBOARD",
-    "🎛  SENSORS",
-    "📈  CHARTS",
-    "🚨  ALERTS",
-    "ℹ  ABOUT",
+    "📊 Dashboard",
+    "🎛 Sensors",
+    "📈 Charts",
+    "🚨 Alerts",
+    "ℹ About",
 ])
-
 # ───────────────────────────────────────────────
 # TAB 1 · DASHBOARD
 # ───────────────────────────────────────────────
@@ -844,26 +857,135 @@ with tab_dash:
 # TAB 2 · SENSORS
 # ───────────────────────────────────────────────
 with tab_sensors:
-    st.markdown('<p class="sec-label">SENSOR STATUS MATRIX</p>', unsafe_allow_html=True)
-    
-    st.markdown(
-        '<div style="background:#111318;border:1px solid #1e2230;'
-        'border-radius:6px;overflow:hidden">' +
-        feat_row("Air Temperature",     air_temp,   285, 315, "K",   308, 312) +
-        feat_row("Process Temperature", proc_temp,  295, 360, "K",   330, 345) +
-        feat_row("Rotational Speed",    engine_rpm, 500, 4000, "RPM", 2500, 3200) +
-        feat_row("Torque",              torque_nm,  5,   120, "Nm",  75,   95) +
-        feat_row("Tool Wear",           tool_wear,  0,   250, "min", 140,  190) +
-        '</div>',
-        unsafe_allow_html=True)
+    left, right = st.columns([1, 1])
+
+    # ───────── LEFT: CONTROL + LIVE TELEMETRY ─────────
+    with left:
+        st.markdown('<p class="sec-label">MANUAL SENSOR OVERRIDE</p>',
+                    unsafe_allow_html=True)
+
+        st.markdown(
+            '<div style="background:#111318;border:1px solid #1e2230;'
+            'border-radius:6px;padding:12px 14px;font-family:Courier New;'
+            'font-size:11px;color:#5a9fd4;letter-spacing:1px;margin-bottom:12px">'
+            '⚙ Use sidebar sliders to adjust sensor values.</div>',
+            unsafe_allow_html=True)
+
+        def bpc(val, vmin, vmax, w=0.65, c=0.85):
+            pct = max(0.0, min(100.0,
+                      (float(val) - vmin) / (vmax - vmin) * 100))
+            col = ("#d84040" if pct / 100 > c
+                   else "#d4a843" if pct / 100 > w
+                   else "#3a86ff")
+            return pct, col
+
+        ap, ab = bpc(air_temp,   285, 315, 0.70, 0.90)
+        pp, pb = bpc(proc_temp,  295, 360, 0.60, 0.80)
+        rp, rb = bpc(engine_rpm, 500, 4000,0.60, 0.75)
+        tp, tb = bpc(torque_nm,  5,   120, 0.60, 0.75)
+        wp, wb = bpc(tool_wear,  0,   250, 0.50, 0.72)
+
+        st.markdown(
+            telem_bar("Air Temperature (K)",  f"{air_temp:.1f} K",    ap, ab) +
+            telem_bar("Process Temp (K)",     f"{proc_temp:.1f} K",   pp, pb) +
+            telem_bar("Engine RPM",           f"{engine_rpm} RPM",    rp, rb) +
+            telem_bar("Torque (Nm)",          f"{torque_nm:.1f} Nm",  tp, tb) +
+            telem_bar("Tool Wear (min)",      f"{int(tool_wear)} min",wp, wb),
+            unsafe_allow_html=True)
+
+    # ───────── RIGHT: ANALYSIS + FEATURE STATUS ─────────
+    with right:
+        st.markdown('<p class="sec-label">AI DIAGNOSTICS</p>',
+                    unsafe_allow_html=True)
+
+        if level in ("critical", "warn") and cause_lbl:
+            st.markdown(f"""
+<div style="background:#1a0d0d;border:1px solid #5a2010;border-radius:6px;
+            padding:14px 16px;font-family:'Courier New',monospace;margin-bottom:10px">
+  <div style="font-size:12px;font-weight:700;color:#d84040;
+              letter-spacing:1px;margin-bottom:6px">ANOMALY DETECTED</div>
+  <div style="font-size:13px;color:#f09070;font-weight:700;
+              margin-bottom:4px">{cause_lbl}</div>
+  <div style="font-size:10px;color:#8a6050;line-height:1.6">{cause_detail}</div>
+</div>""", unsafe_allow_html=True)
+        else:
+            st.markdown("""
+<div style="background:#0d1a12;border:1px solid #1a3d22;border-radius:6px;
+            padding:14px 16px;font-family:'Courier New',monospace;margin-bottom:10px">
+  <div style="font-size:12px;font-weight:700;color:#3db85a;
+              letter-spacing:1px;margin-bottom:4px">NO ANOMALY DETECTED</div>
+  <div style="font-size:10px;color:#5a7060">
+    All 5 features within normal operating range.</div>
+</div>""", unsafe_allow_html=True)
+
+        # ⭐ FEATURE STATUS (FROM VERSION 1 — CLEAN TABLE STYLE)
+        st.markdown('<p class="sec-label" style="margin-top:10px">SENSOR HEALTH MATRIX</p>',
+                    unsafe_allow_html=True)
+
+        st.markdown(
+            '<div style="background:#111318;border:1px solid #1e2230;'
+            'border-radius:6px;overflow:hidden">'
+            + feat_row("Air Temperature",  air_temp,   285, 315,  "K",   308, 312)
+            + feat_row("Process Temperature", proc_temp, 295, 360, "K",   330, 345)
+            + feat_row("Rotational Speed", engine_rpm, 500, 4000, "RPM", 2500, 3200)
+            + feat_row("Torque", torque_nm, 5, 120, "Nm", 75, 95)
+            + feat_row("Tool Wear", tool_wear, 0, 250, "min", 140, 190)
+            + '</div>',
+            unsafe_allow_html=True)
 
 # ───────────────────────────────────────────────
 # TAB 3 · CHARTS
 # ───────────────────────────────────────────────
 with tab_charts:
-    st.markdown('<p class="sec-label">HISTORICAL TRENDS</p>', unsafe_allow_html=True)
-    st.info("💡 Tip: The live sensor charts are available in the collapsible section at the top of the page.")
-
+    labels = st.session_state.hist_labels
+ 
+    if len(labels) < 2:
+        st.info("Waiting for data — adjust sliders or enable Live Streaming to populate charts.")
+    else:
+        PBGC  = "#0b0d11"
+        GRIDC = "#1e2230"
+        FONTC = "#5a6070"
+        FONTF = "Courier New"
+ 
+        def mk_fig(title, y_data, color):
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=labels,
+                y=y_data,
+                mode="lines",
+                line=dict(color=color, width=1.5),
+                fill="tozeroy",
+                fillcolor=hex_to_rgba(color, alpha=0.1),
+            ))
+            fig.update_layout(
+                title=dict(
+                    text=title,
+                    font=dict(color="#e2e5ee", size=11, family=FONTF),
+                    x=0.01),
+                paper_bgcolor=PBGC,
+                plot_bgcolor=PBGC,
+                margin=dict(l=40, r=10, t=36, b=30),
+                height=180,
+                xaxis=dict(showticklabels=False, gridcolor=GRIDC, zeroline=False, showline=False),
+                yaxis=dict(gridcolor=GRIDC, tickfont=dict(color=FONTC, size=9, family=FONTF), zeroline=False),
+                showlegend=False,
+            )
+            return fig
+ 
+        st.markdown('<p class="sec-label">SENSOR TRENDS (LAST 30 READINGS)</p>', unsafe_allow_html=True)
+        
+        r1c1, r1c2 = st.columns(2)
+        with r1c1:
+            st.plotly_chart(mk_fig("ENGINE RPM", st.session_state.hist_rpm, "#3a86ff"), use_container_width=True)
+        with r1c2:
+            st.plotly_chart(mk_fig("TORQUE (Nm)", st.session_state.hist_torq, "#d4a843"), use_container_width=True)
+ 
+        r2c1, r2c2 = st.columns(2)
+        with r2c1:
+            st.plotly_chart(mk_fig("PROCESS TEMP (K)", st.session_state.hist_temp, "#f09070"), use_container_width=True)
+        with r2c2:
+            st.plotly_chart(mk_fig("FAILURE PROBABILITY (%)", st.session_state.hist_risk, "#d84040"), use_container_width=True)
+ 
 # ───────────────────────────────────────────────
 # TAB 4 · ALERTS
 # ───────────────────────────────────────────────
@@ -885,77 +1007,129 @@ with tab_alerts:
 # TAB 5 · ABOUT
 # ───────────────────────────────────────────────
 with tab_about:
-    st.markdown("""
-<div class="about-section">
-    <div class="about-title">🤖 SYSTEM OVERVIEW</div>
-    <div class="about-text">
-        SENTINEL_AI is an advanced predictive maintenance platform designed for industrial equipment monitoring. 
-        The system leverages machine learning to predict equipment failures before they occur, enabling proactive 
-        maintenance strategies and minimizing costly downtime.
-    </div>
+    st.markdown(f"""
+<div style="font-family:'Courier New',monospace;max-width:700px">
+
+<!-- HEADER -->
+<div style="font-size:16px;font-weight:700;color:#e2e5ee;
+            letter-spacing:2px;margin-bottom:4px">
+  SENTINEL_AI v4.2
+</div>
+<div style="font-size:9px;color:#5a6070;letter-spacing:3px;margin-bottom:20px">
+  INDUSTRIAL PREDICTIVE MAINTENANCE SYSTEM
 </div>
 
-<div class="about-section">
-    <div class="about-title">⚙ TECHNICAL SPECIFICATIONS</div>
-    <div class="about-text">
-        <strong>Model:</strong> {model_name}<br>
-        <strong>Accuracy:</strong> {model_acc}%<br>
-        <strong>Input Features:</strong> 5 (Air Temp, Process Temp, RPM, Torque, Tool Wear)<br>
-        <strong>Prediction Target:</strong> Binary classification (Failure / No Failure)<br>
-        <strong>Update Frequency:</strong> Real-time streaming mode available<br>
-        <strong>Compliance:</strong> ISO 13849 Safety Standards
+<!-- GRID -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+
+  <!-- ML ENGINE -->
+  <div style="background:#151820;border:1px solid #1e2230;
+              border-radius:6px;padding:14px">
+    <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
+      ML ENGINE
     </div>
+    <div style="font-size:11px;color:#e2e5ee;line-height:1.9">
+      Algorithm: {MODEL_NAME}<br>
+      Accuracy: {MODEL_ACCURACY}%<br>
+      Input Features: 5<br>
+      Output: Failure probability<br>
+      Target: Binary (Failure / No Failure)<br>
+      Threshold: 50% = Critical
+    </div>
+  </div>
+
+  <!-- LIVE FEATURES -->
+  <div style="background:#151820;border:1px solid #1e2230;
+              border-radius:6px;padding:14px">
+    <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
+      LIVE INPUT FEATURES
+    </div>
+    <div style="font-size:11px;color:#e2e5ee;line-height:1.9">
+      Air Temperature [K]: {air_temp}<br>
+      Process Temperature [K]: {proc_temp}<br>
+      Rotational Speed [RPM]: {engine_rpm}<br>
+      Torque [Nm]: {torque_nm}<br>
+      Tool Wear [min]: {tool_wear}
+    </div>
+  </div>
+
+  <!-- PREDICTIVE CAPABILITIES -->
+  <div style="background:#151820;border:1px solid #1e2230;
+              border-radius:6px;padding:14px">
+    <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
+      PREDICTIVE CAPABILITIES
+    </div>
+    <div style="font-size:11px;color:#e2e5ee;line-height:1.9">
+      • Thermal overload detection<br>
+      • Torque strain analysis<br>
+      • Tool wear prediction<br>
+      • RPM overspeed alerts<br>
+      • Anomaly detection
+    </div>
+  </div>
+
+  <!-- RISK LEVELS -->
+  <div style="background:#151820;border:1px solid #1e2230;
+              border-radius:6px;padding:14px">
+    <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
+      RISK LEVELS
+    </div>
+    <div style="font-size:11px;line-height:1.9">
+      <span style="color:#3db85a">■</span>&nbsp; &lt; 20% — System Nominal<br>
+      <span style="color:#d4a843">■</span>&nbsp; 20–50% — Elevated Risk<br>
+      <span style="color:#d84040">■</span>&nbsp; &gt; 50% — Critical Failure
+    </div>
+  </div>
+
+  <!-- SAFETY FEATURES -->
+  <div style="background:#151820;border:1px solid #1e2230;
+              border-radius:6px;padding:14px">
+    <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
+      SAFETY FEATURES
+    </div>
+    <div style="font-size:11px;color:#e2e5ee;line-height:1.9">
+      • Emergency Stop (E-STOP)<br>
+      • Manual override control<br>
+      • Real-time alerts<br>
+      • Event logging system
+    </div>
+  </div>
+
+  <!-- CERTIFICATIONS -->
+  <div style="background:#151820;border:1px solid #1e2230;
+              border-radius:6px;padding:14px">
+    <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
+      CERTIFICATIONS
+    </div>
+    <div style="font-size:11px;color:#e2e5ee;line-height:1.9">
+      ISO 13849 — Safety of Machinery<br>
+      IEC 62443 — Industrial Security<br>
+      CE Marking — EU Compliance<br>
+      UKCA — UK Conformity
+    </div>
+  </div>
+
 </div>
 
-<div class="about-section">
-    <div class="about-title">🔧 TECHNOLOGY STACK</div>
-    <div class="about-text">
-        <div class="tech-badge">PYTHON 3.8+</div>
-        <div class="tech-badge">STREAMLIT</div>
-        <div class="tech-badge">SCIKIT-LEARN</div>
-        <div class="tech-badge">PLOTLY</div>
-        <div class="tech-badge">PANDAS</div>
-        <div class="tech-badge">NUMPY</div>
-    </div>
+<!-- REQUIRED FILES -->
+<div style="background:#0d1a2a;border:1px solid #1a3a5a;
+            border-radius:5px;padding:12px 14px">
+  <div style="font-size:9px;color:#5a9fd4;letter-spacing:2px;margin-bottom:6px">
+    REQUIRED FILES
+  </div>
+  <div style="font-size:11px;color:#8ab0d0;line-height:1.9">
+    machine_model.pkl — trained model<br>
+    scaler.pkl — feature scaler (5 inputs)
+  </div>
 </div>
 
-<div class="about-section">
-    <div class="about-title">📊 PREDICTIVE CAPABILITIES</div>
-    <div class="about-text">
-        • <strong>Heat Failure Detection:</strong> Identifies thermal overload conditions<br>
-        • <strong>Power Failure Analysis:</strong> Monitors torque strain and mechanical stress<br>
-        • <strong>Tool Wear Tracking:</strong> Predicts tool replacement requirements<br>
-        • <strong>Overstrain Detection:</strong> Alerts on RPM overspeed conditions<br>
-        • <strong>Random Failure Monitoring:</strong> Catches anomalous operational patterns
-    </div>
 </div>
-
-<div class="about-section">
-    <div class="about-title">🛡 SAFETY FEATURES</div>
-    <div class="about-text">
-        • Emergency Stop (E-STOP) capability<br>
-        • Manual override controls<br>
-        • Real-time alert notifications<br>
-        • Comprehensive event logging<br>
-        • Multi-level risk classification (Nominal / Warning / Critical)
-    </div>
-</div>
-
-<div class="about-section">
-    <div class="about-title">📈 OPERATIONAL MODES</div>
-    <div class="about-text">
-        <strong>MANUAL MODE:</strong> Full control via adjustable sliders for each sensor parameter<br>
-        <strong>LIVE STREAMING:</strong> Automated real-time monitoring with simulated sensor feeds
-    </div>
-</div>
-
-<div class="about-section">
-    <div class="about-title">ℹ VERSION INFORMATION</div>
-    <div class="about-text">
-        <strong>Version:</strong> 4.2.0<br>
-        <strong>Release Date:</strong> 2024<br>
-        <strong>Node:</strong> UNIT-07<br>
-        <strong>Status:</strong> Production Ready
-    </div>
-</div>
-""".format(model_name=MODEL_NAME, model_acc=MODEL_ACCURACY), unsafe_allow_html=True)
+""", unsafe_allow_html=True)
+# ═══════════════════════════════════════════════
+# 13. AUTO-REFRESH  (live mode only)
+# ═══════════════════════════════════════════════
+if (live_mode
+        and not st.session_state.estop
+        and not st.session_state.override):
+    time.sleep(1)
+    st.rerun()
