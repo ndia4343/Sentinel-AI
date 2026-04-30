@@ -8,6 +8,11 @@ import math
 
 from datetime import datetime
 
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if "live_mode" not in st.session_state:
+    st.session_state.live_mode = True
 # ───────────────────────────────────────────────
 # Constants
 # ───────────────────────────────────────────────
@@ -56,8 +61,8 @@ model, scaler = load_assets()
 # 3. SESSION STATE
 # ═══════════════════════════════════════════════
 DEFAULT_STATE = {
-    "logged_in": False,
-    "live_mode": False,
+    "logged_in": True,
+    "live_mode": True,
     "log": [],
     "alert_hist": [],
     "override": False,
@@ -511,13 +516,20 @@ if not st.session_state.logged_in:
         upw = st.text_input("ACCESS KEY",  placeholder="••••••••••",
                             type="password", key="upw_input")
 
-        if st.button("AUTHENTICATE  →", key="login_btn"):
-            if uid.strip() and upw.strip():
-                st.session_state.logged_in = True
-                add_log("INFO", f"Operator {uid} authenticated.", "#5a9fd4")
-                st.rerun()
-            else:
-                st.error("Enter both Operator ID and Access Key.")
+      
+if st.button("AUTHENTICATE  →", key="login_btn"):
+    if uid.strip() and upw.strip():
+        st.session_state.logged_in = True
+        st.session_state.user = uid   # 👈 store user (important for SaaS feel)
+
+        add_log("INFO", f"Operator {uid} authenticated.", "#5a9fd4")
+
+        st.success("Access Granted")  # optional UI feedback
+        st.rerun()
+
+    else:
+        st.error("Enter both Operator ID and Access Key.")        
+
 
         st.markdown("""
 <div style="text-align:center;font-size:10px;color:#3a4050;
@@ -1010,11 +1022,11 @@ st.markdown(f"""
   SENTINEL_AI v4.2
 </div>
 
-<div style="font-size:10px;color:#5a6070;letter-spacing:3px;margin-bottom:18px">
+<div style="font-size:10px;color:#5a6070;letter-spacing:3px;margin-bottom:14px">
   INDUSTRIAL PREDICTIVE MAINTENANCE SYSTEM
 </div>
 
-<!-- HERO DESCRIPTION -->
+<!-- HERO BLOCK -->
 <div style="background:#111318;border:1px solid #1e2230;
             border-radius:8px;padding:14px;margin-bottom:12px">
 
@@ -1033,13 +1045,14 @@ st.markdown(f"""
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
 
   <!-- ML ENGINE -->
-  <div style="background:#151820;border:1px solid #1e2230;border-radius:6px;padding:14px">
+  <div style="background:#151820;border:1px solid #1e2230;
+              border-radius:6px;padding:14px">
     <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
       ML ENGINE
     </div>
-    <div style="font-size:11px;color:#c8cdd8;line-height:1.8">
-      Algorithm: <span style="color:#e2e5ee">{MODEL_NAME}</span><br>
-      Accuracy: <span style="color:#e2e5ee">{MODEL_ACCURACY}%</span><br>
+    <div style="font-size:11px;color:#e2e5ee;line-height:1.8">
+      Algorithm: {MODEL_NAME}<br>
+      Accuracy: {MODEL_ACCURACY}%<br>
       Input Features: 5<br>
       Output: Failure probability<br>
       Threshold: 50% = Critical
@@ -1047,11 +1060,12 @@ st.markdown(f"""
   </div>
 
   <!-- LIVE FEATURES -->
-  <div style="background:#151820;border:1px solid #1e2230;border-radius:6px;padding:14px">
+  <div style="background:#151820;border:1px solid #1e2230;
+              border-radius:6px;padding:14px">
     <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
       LIVE INPUT FEATURES
     </div>
-    <div style="font-size:11px;color:#c8cdd8;line-height:1.8">
+    <div style="font-size:11px;color:#e2e5ee;line-height:1.8">
       Air Temp: {air_temp} K<br>
       Process Temp: {proc_temp} K<br>
       RPM: {engine_rpm}<br>
@@ -1061,11 +1075,12 @@ st.markdown(f"""
   </div>
 
   <!-- PREDICTIVE -->
-  <div style="background:#151820;border:1px solid #1e2230;border-radius:6px;padding:14px">
+  <div style="background:#151820;border:1px solid #1e2230;
+              border-radius:6px;padding:14px">
     <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
       PREDICTIVE CAPABILITIES
     </div>
-    <div style="font-size:11px;color:#c8cdd8;line-height:1.8">
+    <div style="font-size:11px;color:#e2e5ee;line-height:1.8">
       • Thermal overload detection<br>
       • Torque strain analysis<br>
       • Tool wear prediction<br>
@@ -1075,11 +1090,12 @@ st.markdown(f"""
   </div>
 
   <!-- SAFETY -->
-  <div style="background:#151820;border:1px solid #1e2230;border-radius:6px;padding:14px">
+  <div style="background:#151820;border:1px solid #1e2230;
+              border-radius:6px;padding:14px">
     <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
       SAFETY SYSTEM
     </div>
-    <div style="font-size:11px;color:#c8cdd8;line-height:1.8">
+    <div style="font-size:11px;color:#e2e5ee;line-height:1.8">
       • Emergency Stop (E-STOP)<br>
       • Manual Override Control<br>
       • Real-time Alerting<br>
@@ -1089,17 +1105,17 @@ st.markdown(f"""
 
 </div>
 
-<!-- FILES SECTION (FIXED CLEAN VERSION) -->
+<!-- REQUIRED FILES (CLEAN FOOTER) -->
 <div style="background:#0d1a2a;border:1px solid #1a3a5a;
             border-radius:6px;padding:12px">
 
   <div style="font-size:9px;color:#5a9fd4;letter-spacing:2px;margin-bottom:6px">
-    REQUIRED FILES
+    SYSTEM DEPENDENCIES
   </div>
 
   <div style="font-size:11px;color:#8ab0d0;line-height:1.8">
-    machine_model.pkl — trained ML model<br>
-    scaler.pkl — feature normalization pipeline
+    • machine_model.pkl — trained ML model<br>
+    • scaler.pkl — feature normalization pipeline
   </div>
 
 </div>
