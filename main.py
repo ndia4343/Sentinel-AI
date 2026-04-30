@@ -1002,22 +1002,67 @@ with tab_alerts:
 # TAB 5 · ABOUT
 # ───────────────────────────────────────────────
 with tab_about:
+
+    # ─────────────────────────────────────────
+    # 1. PRODUCT IDENTITY (KEEP THIS FIRST)
+    # ─────────────────────────────────────────
+    st.markdown("""
+<div style="font-family:'Courier New',monospace;max-width:700px">
+
+  <div style="font-size:16px;font-weight:700;color:#e2e5ee;
+              letter-spacing:2px;margin-bottom:2px">
+    SENTINEL_AI v4.2
+  </div>
+
+  <div style="font-size:9px;color:#5a6070;
+              letter-spacing:3px;margin-bottom:16px">
+    INDUSTRIAL PREDICTIVE MAINTENANCE SYSTEM
+  </div>
+
+</div>
+""", unsafe_allow_html=True)
+
+
+    # ─────────────────────────────────────────
+    # 2. HERO BLOCK (PRODUCT POSITIONING)
+    # ─────────────────────────────────────────
+    st.markdown("""
+<div style="background:#111318;border:1px solid #1e2230;
+            border-radius:8px;padding:18px 20px;margin-bottom:14px;
+            font-family:'Courier New',monospace">
+
+  <div style="font-size:14px;font-weight:700;color:#e2e5ee;
+              letter-spacing:2px">
+    SENTINEL_AI INDUSTRIAL INTELLIGENCE
+  </div>
+
+  <div style="font-size:10px;color:#5a6070;
+              letter-spacing:2px;margin-top:4px">
+    REAL-TIME PREDICTIVE MAINTENANCE SYSTEM
+  </div>
+
+  <div style="font-size:11px;color:#c8cdd8;
+              margin-top:10px;line-height:1.6">
+    AI-driven industrial monitoring system that predicts equipment failure
+    using sensor telemetry, machine learning models, and anomaly detection.
+  </div>
+
+  <div style="margin-top:10px;font-size:10px;color:#3db85a">
+    ● SYSTEM ACTIVE · LIVE TELEMETRY · LOGISTIC REGRESSION ENGINE
+  </div>
+
+</div>
+""", unsafe_allow_html=True)
+
+
+    # ─────────────────────────────────────────
+    # 3. FEATURE GRID (TECHNICAL SPECIFICATION)
+    # ─────────────────────────────────────────
     st.markdown(f"""
 <div style="font-family:'Courier New',monospace;max-width:700px">
 
-<!-- HEADER -->
-<div style="font-size:16px;font-weight:700;color:#e2e5ee;
-            letter-spacing:2px;margin-bottom:4px">
-  SENTINEL_AI v4.2
-</div>
-<div style="font-size:9px;color:#5a6070;letter-spacing:3px;margin-bottom:20px">
-  INDUSTRIAL PREDICTIVE MAINTENANCE SYSTEM
-</div>
-
-<!-- GRID -->
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
 
-  <!-- ML ENGINE -->
   <div style="background:#151820;border:1px solid #1e2230;
               border-radius:6px;padding:14px">
     <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
@@ -1028,27 +1073,24 @@ with tab_about:
       Accuracy: {MODEL_ACCURACY}%<br>
       Input Features: 5<br>
       Output: Failure probability<br>
-      Target: Binary (Failure / No Failure)<br>
       Threshold: 50% = Critical
     </div>
   </div>
 
-  <!-- LIVE FEATURES -->
   <div style="background:#151820;border:1px solid #1e2230;
               border-radius:6px;padding:14px">
     <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
       LIVE INPUT FEATURES
     </div>
     <div style="font-size:11px;color:#e2e5ee;line-height:1.9">
-      Air Temperature [K]: {air_temp}<br>
-      Process Temperature [K]: {proc_temp}<br>
-      Rotational Speed [RPM]: {engine_rpm}<br>
-      Torque [Nm]: {torque_nm}<br>
-      Tool Wear [min]: {tool_wear}
+      Air Temp: {air_temp} K<br>
+      Process Temp: {proc_temp} K<br>
+      RPM: {engine_rpm}<br>
+      Torque: {torque_nm} Nm<br>
+      Tool Wear: {tool_wear} min
     </div>
   </div>
 
-  <!-- PREDICTIVE CAPABILITIES -->
   <div style="background:#151820;border:1px solid #1e2230;
               border-radius:6px;padding:14px">
     <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
@@ -1058,65 +1100,50 @@ with tab_about:
       • Thermal overload detection<br>
       • Torque strain analysis<br>
       • Tool wear prediction<br>
-      • RPM overspeed alerts<br>
-      • Anomaly detection
+      • RPM anomaly alerts<br>
+      • Failure probability modeling
     </div>
   </div>
 
-  <!-- RISK LEVELS -->
   <div style="background:#151820;border:1px solid #1e2230;
               border-radius:6px;padding:14px">
     <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
-      RISK LEVELS
-    </div>
-    <div style="font-size:11px;line-height:1.9">
-      <span style="color:#3db85a">■</span>&nbsp; &lt; 20% — System Nominal<br>
-      <span style="color:#d4a843">■</span>&nbsp; 20–50% — Elevated Risk<br>
-      <span style="color:#d84040">■</span>&nbsp; &gt; 50% — Critical Failure
-    </div>
-  </div>
-
-  <!-- SAFETY FEATURES -->
-  <div style="background:#151820;border:1px solid #1e2230;
-              border-radius:6px;padding:14px">
-    <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
-      SAFETY FEATURES
+      SAFETY SYSTEM
     </div>
     <div style="font-size:11px;color:#e2e5ee;line-height:1.9">
       • Emergency Stop (E-STOP)<br>
-      • Manual override control<br>
-      • Real-time alerts<br>
-      • Event logging system
-    </div>
-  </div>
-
-  <!-- CERTIFICATIONS -->
-  <div style="background:#151820;border:1px solid #1e2230;
-              border-radius:6px;padding:14px">
-    <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
-      CERTIFICATIONS
-    </div>
-    <div style="font-size:11px;color:#e2e5ee;line-height:1.9">
-      ISO 13849 — Safety of Machinery<br>
-      IEC 62443 — Industrial Security<br>
-      CE Marking — EU Compliance<br>
-      UKCA — UK Conformity
+      • Manual Override Control<br>
+      • Real-time Alerting<br>
+      • Event Logging System
     </div>
   </div>
 
 </div>
 
-<!-- REQUIRED FILES -->
-<div style="background:#0d1a2a;border:1px solid #1a3a5a;
-            border-radius:5px;padding:12px 14px">
-  <div style="font-size:9px;color:#5a9fd4;letter-spacing:2px;margin-bottom:6px">
-    REQUIRED FILES
+</div>
+""", unsafe_allow_html=True)
+
+
+    # ─────────────────────────────────────────
+    # 4. COMPLIANCE + FILES
+    # ─────────────────────────────────────────
+    st.markdown("""
+<div style="background:#151820;border:1px solid #1e2230;
+            border-radius:6px;padding:14px;
+            font-family:'Courier New',monospace">
+
+  <div style="font-size:9px;color:#5a6070;letter-spacing:2px;margin-bottom:8px">
+    COMPLIANCE & FILES
   </div>
-  <div style="font-size:11px;color:#8ab0d0;line-height:1.9">
+
+  <div style="font-size:11px;color:#e2e5ee;line-height:1.9">
+    ISO 13849 — Machinery Safety<br>
+    IEC 62443 — Industrial Security<br>
+    CE / UKCA Certified Deployment<br><br>
+
     machine_model.pkl — trained model<br>
-    scaler.pkl — feature scaler (5 inputs)
+    scaler.pkl — feature normalization
   </div>
-</div>
 
 </div>
 """, unsafe_allow_html=True)
