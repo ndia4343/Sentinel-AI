@@ -33,6 +33,7 @@ st.set_page_config(
     page_title="SENTINEL_AI | Industrial Node",
     page_icon="⚙",
     layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 # ═══════════════════════════════════════════════
@@ -250,18 +251,35 @@ def alert_row_html(a):
 # ═══════════════════════════════════════════════
 st.markdown("""
 <style>
+
 .stApp { background-color: #0b0d11; color: #e2e5ee; }
 
+/* FORCE WIDTH */
+section[data-testid="stSidebar"] {
+    min-width: 300px !important;
+    width: 300px !important;
+    max-width: 300px !important;
+}
+
+/* SIDEBAR STYLE */
 [data-testid="stSidebar"] {
     background-color: #111318 !important;
     border-right: 1px solid #1e2230 !important;
 }
-[data-testid="stSidebar"] * { color: #e2e5ee !important; }
+
+/* TEXT COLOR */
+[data-testid="stSidebar"] * {
+    color: #e2e5ee !important;
+}
+
+/* SPACING */
 [data-testid="stSidebar"] > div:first-child {
     padding-top: 1rem !important;
 }
 
-#MainMenu, footer, header { visibility: hidden; }
+/* FIX HEADER / MENU */
+#MainMenu, footer { visibility: hidden; }
+header { visibility: visible !important; }
 
 /* Expander styling */
 [data-testid="stExpander"] {
@@ -566,9 +584,19 @@ with st.expander("📈 Sensor Charts (Last 30 readings)"):
 with st.sidebar:
     st.markdown(
         '<p style="font-family:Courier New;font-size:16px;font-weight:700;'
-        'color:#e2e5ee;letter-spacing:2px;margin-bottom:8px">CONTROL PANEL</p>',
-        unsafe_allow_html=True)
+        'color:#e2e5ee;letter-spacing:2px;margin-bottom:8px">'
+        'CONTROL PANEL</p>',
+        unsafe_allow_html=True
+    )
+
+    # 🔥 THIS IS THE SAFETY ANCHOR
+   with st.expander("⚙ System Status", expanded=True):
+    st.write(f"System: {'HALTED' if st.session_state.estop else 'ACTIVE'}")
+    st.write(f"Time: {now_ts()}")
+    st.write(f"Mode: {'LIVE' if st.session_state.live_mode else 'MANUAL'}")
+    st.write(f"Override: {'ON' if st.session_state.override else 'OFF'}")
     
+    # ⬇️ Continue normally
     st.markdown('<p class="sec-label">OPERATIONAL MODE</p>', unsafe_allow_html=True)
     
     # Live mode checkbox
