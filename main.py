@@ -1009,7 +1009,7 @@ with tab_alerts:
 # ───────────────────────────────────────────────
 # TAB 5 · ABOUT
 # ───────────────────────────────────────────────
-def about_section():
+with tab_about:
     st.markdown(f"""
     <div style="font-family:'Courier New',monospace;max-width:750px">
 
@@ -1057,7 +1057,7 @@ def about_section():
           Process Temp: {proc_temp} K<br>
           RPM: {engine_rpm}<br>
           Torque: {torque_nm} Nm<br>
-          Tool Wear: {tool_wear}
+          Tool Wear: {tool_wear} min
         </div>
       </div>
 
@@ -1099,6 +1099,7 @@ def about_section():
 
     </div>
     """, unsafe_allow_html=True)
+ 
 # ═══════════════════════════════════════════════
 # 13. AUTO-REFRESH  (live mode only)
 # ═══════════════════════════════════════════════
