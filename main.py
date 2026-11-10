@@ -45,10 +45,12 @@ st.set_page_config(
 @st.cache_resource
 def load_assets():
     try:
-        model  = pickle.load(open('machine_model.pkl', 'rb'))
-        scaler = pickle.load(open('scaler.pkl', 'rb'))
+        with open('machine_model.pkl', 'rb') as f_model:
+            model = pickle.load(f_model)
+        with open('scaler.pkl', 'rb') as f_scaler:
+            scaler = pickle.load(f_scaler)
         return model, scaler
-    except:
+    except Exception:
         return None, None
 # ═══════════════════════════════════════════════
 # 3. MODEL LOADING
