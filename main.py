@@ -442,6 +442,9 @@ button:focus {
     visibility: hidden !important;
 }
 
+#stDecoration, header {
+    display: none !important;
+}
 /* =========================
    REMOVE STREAMLIT BLUE GHOST STYLES
 ========================= */
