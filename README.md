@@ -4,9 +4,8 @@
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-F7931E?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
 
-> **Live Demo:** [sentinel-ai-rd2xtxh7l5paxxqqgpsn2b.streamlit.app](https://sentinel-ai-rd2xtxh7l5paxxqqgpsn2b.streamlit.app/)  
-> **Demo Access:** Enter any Operator ID and Key (e.g., `engineer@facility.com` / `admin123`) to authenticate.
-
+> **Live Demo:** https://sentinel-ai-rd2xtxh7l5paxxqqgpsn2b.streamlit.app/
+> **Demo Access:** Enter `admin` / `admin` to log in.
 ---
 
 ## 📌 Project Overview
