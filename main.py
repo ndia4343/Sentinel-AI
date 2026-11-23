@@ -1036,7 +1036,7 @@ with tab_about:
       </div>
 
       <div style="margin-top:10px;font-size:10px;color:#3db85a;letter-spacing:1px">
-        ● SYSTEM ACTIVE · LIVE TELEMETRY · LOGISTIC REGRESSION ENGINE
+        ● SYSTEM ACTIVE · LIVE TELEMETRY · LIVE DIAGNOSTIC ENGINE
       </div>
 
     </div>
@@ -1047,7 +1047,7 @@ with tab_about:
       <div style="background:#151820;border:1px solid #1e2230;border-radius:6px;padding:14px">
         <div style="font-size:9px;color:#5a6070;letter-spacing:2px;">ML ENGINE</div>
         <div style="font-size:11px;color:#e2e5ee;line-height:1.8">
-          Algorithm: {MODEL_NAME}<br>
+          Method: Multi-Sensor Risk Scoring<br>
           Accuracy: {MODEL_ACCURACY}%<br>
           Input Features: 5<br>
           Output: Failure probability<br>
@@ -1092,12 +1092,12 @@ with tab_about:
     <div style="background:#0d1a2a;border:1px solid #1a3a5a;border-radius:6px;padding:12px">
 
       <div style="font-size:9px;color:#5a9fd4;letter-spacing:2px;margin-bottom:6px">
-        SYSTEM DEPENDENCIES
+        ACTIVE MODULES
       </div>
 
       <div style="font-size:11px;color:#8ab0d0;line-height:1.8">
-        • machine_model.pkl<br>
-        • scaler.pkl
+        • Failure Risk Model — Loaded<br>
+        • Sensor Calibration Profile — Synced
       </div>
 
     </div>
